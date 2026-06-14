@@ -1,12 +1,12 @@
 import pytest
 
-from operator_agent.core.config import Settings
-from operator_agent.core.executor import ToolExecutor
-from operator_agent.core.guardrails import Guardrails
-from operator_agent.core.memory import SessionStore
-from operator_agent.core.planner import MockPlanner
-from operator_agent.tools.base import Tool, ToolRegistry, ToolResult
-from operator_agent.tools.schema import tool_parameters_schema
+from api_operator.core.config import Settings
+from api_operator.core.executor import ToolExecutor
+from api_operator.core.guardrails import Guardrails
+from api_operator.core.memory import SessionStore
+from api_operator.core.planner import MockPlanner
+from api_operator.tools.base import Tool, ToolRegistry, ToolResult
+from api_operator.tools.schema import tool_parameters_schema
 
 
 @pytest.mark.parametrize(
@@ -110,7 +110,7 @@ async def test_executor_unknown_tool():
 
 @pytest.mark.asyncio
 async def test_mock_planner_routes():
-    from operator_agent.adapters.mock import MockAdapter
+    from api_operator.adapters.mock import MockAdapter
 
     planner = MockPlanner()
     registry = MockAdapter().build_registry()
@@ -136,8 +136,8 @@ def test_tool_parameters_schema():
 
 
 def test_settings_from_env(monkeypatch):
-    monkeypatch.setenv("operator_agent_PORT", "9999")
-    monkeypatch.setenv("operator_agent_PLANNER", "mock")
+    monkeypatch.setenv("api_operator_PORT", "9999")
+    monkeypatch.setenv("api_operator_PLANNER", "mock")
     settings = Settings()
     assert settings.port == 9999
     assert settings.planner == "mock"

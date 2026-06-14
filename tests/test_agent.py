@@ -1,8 +1,8 @@
 import pytest
 
-from operator_agent.adapters.mock import get_mock_store, reset_mock_store
-from operator_agent.core.config import Settings
-from operator_agent.factory import build_agent
+from api_operator.adapters.mock import get_mock_store, reset_mock_store
+from api_operator.core.config import Settings
+from api_operator.factory import build_agent
 
 
 @pytest.fixture(autouse=True)

@@ -5,7 +5,7 @@ from collections.abc import Awaitable, Callable
 from dataclasses import dataclass, field
 from typing import Any
 
-from operator_agent.tools.schema import tool_parameters_schema
+from api_operator.tools.schema import tool_parameters_schema
 
 
 @dataclass(slots=True)

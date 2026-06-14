@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from typing import Any
 
-from operator_agent.core.guardrails import Guardrails
-from operator_agent.tools.base import Tool, ToolRegistry, ToolResult
+from api_operator.core.guardrails import Guardrails
+from api_operator.tools.base import Tool, ToolRegistry, ToolResult
 
 
 class ToolExecutor:

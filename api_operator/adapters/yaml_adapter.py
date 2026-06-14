@@ -6,9 +6,9 @@ from typing import Any
 
 import httpx
 
-from operator_agent.adapters.base import Adapter
-from operator_agent.adapters.yaml_spec import AdapterSpec, ToolSpec, load_adapter_spec
-from operator_agent.tools.base import Tool, ToolRegistry, ToolResult
+from api_operator.adapters.base import Adapter
+from api_operator.adapters.yaml_spec import AdapterSpec, ToolSpec, load_adapter_spec
+from api_operator.tools.base import Tool, ToolRegistry, ToolResult
 
 _PLACEHOLDER = re.compile(r"\{(\w+)\}")
 

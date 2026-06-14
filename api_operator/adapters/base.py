@@ -3,7 +3,7 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import Any
 
-from operator_agent.tools.base import ToolRegistry
+from api_operator.tools.base import ToolRegistry
 
 
 class Adapter(ABC):

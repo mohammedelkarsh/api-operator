@@ -7,7 +7,7 @@ from typing import Any
 
 import yaml
 
-from operator_agent.adapters.yaml_spec import AdapterSpec, ParameterSpec, ToolSpec, save_adapter_spec
+from api_operator.adapters.yaml_spec import AdapterSpec, ParameterSpec, ToolSpec, save_adapter_spec
 
 _METHODS = {"get", "post", "put", "patch", "delete"}
 
@@ -68,7 +68,7 @@ def generate_adapter_from_openapi(
         description=adapter_description,
         base_url=base_url.rstrip("/"),
         system_prompt=(
-            f"You are Operator Agent for {adapter_name}. "
+            f"You are API Operator for {adapter_name}. "
             "Use tools to call the project API. Confirm dangerous actions. "
             "Reply in the user's language."
         ),
@@ -162,7 +162,7 @@ auth:
   env_token: {token_env}
 
 system_prompt: |
-  You are Operator Agent for {name}.
+  You are API Operator for {name}.
   Use registered tools only. Confirm dangerous actions.
   Reply in the user's language (Arabic or English).
 
@@ -216,7 +216,7 @@ def scaffold_adapter(
 No Python required — edit `adapter.yaml` and run:
 
 ```powershell
-python -m operator_agent.server.cli chat --adapter yaml --config adapter.yaml
+python -m api_operator.server.cli chat --adapter yaml --config adapter.yaml
 ```
 
 Set token:
@@ -230,7 +230,7 @@ Or pass `--token` on the CLI.
 Generate from OpenAPI:
 
 ```powershell
-python -m operator_agent.server.cli generate-from-openapi openapi.yaml --output adapter.yaml --base-url {base_url}
+python -m api_operator.server.cli generate-from-openapi openapi.yaml --output adapter.yaml --base-url {base_url}
 ```
 """,
         encoding="utf-8",

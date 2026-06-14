@@ -4,7 +4,7 @@ All notable changes to this project are documented in this file.
 
 ## [0.9.0] - 2026-06-14
 
-Renamed from `workspace-agent` to **`operator-agent`** (GitHub + PyPI package name).
+Renamed to **`api-operator`** (GitHub + PyPI). PyPI blocks names starting with `operator` (stdlib conflict).
 
 ### Added
 
@@ -20,5 +20,5 @@ Renamed from `workspace-agent` to **`operator-agent`** (GitHub + PyPI package na
 
 ### Notes
 
-- Default planner is rule-based (`mock`); OpenAI planner is optional (`pip install operator-agent[llm]`)
+- Default planner is rule-based (`mock`); OpenAI planner is optional (`pip install api-operator[llm]`)
 - Tenant team invites require a tenant-scoped Sanctum token (see example adapter README)

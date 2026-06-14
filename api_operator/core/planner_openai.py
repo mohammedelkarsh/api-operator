@@ -3,9 +3,9 @@ from __future__ import annotations
 import json
 from typing import Any
 
-from operator_agent.core.config import Settings
-from operator_agent.core.planner import MockPlanner, PlanStep, Planner
-from operator_agent.tools.base import ToolRegistry
+from api_operator.core.config import Settings
+from api_operator.core.planner import MockPlanner, PlanStep, Planner
+from api_operator.tools.base import ToolRegistry
 
 
 class OpenAIPlanner:
@@ -23,11 +23,11 @@ class OpenAIPlanner:
             from openai import AsyncOpenAI
         except ImportError as exc:
             raise RuntimeError(
-                "OpenAI planner requires optional dependency. Install with: pip install operator-agent[llm]"
+                "OpenAI planner requires optional dependency. Install with: pip install api-operator[llm]"
             ) from exc
 
         if not self.settings.openai_api_key:
-            raise RuntimeError("operator_agent_OPENAI_API_KEY is not set.")
+            raise RuntimeError("api_operator_OPENAI_API_KEY is not set.")
 
         client = AsyncOpenAI(api_key=self.settings.openai_api_key)
         tools = [_openai_tool_schema(tool.schema()) for tool in registry.list_tools()]

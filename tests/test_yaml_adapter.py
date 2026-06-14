@@ -4,12 +4,12 @@ import json
 
 import pytest
 
-from operator_agent.adapters.openapi_generator import generate_adapter_from_openapi
-from operator_agent.adapters.yaml_adapter import YamlAdapter, _token_from_env
-from operator_agent.adapters.yaml_spec import save_adapter_spec
-from operator_agent.core.config import Settings
-from operator_agent.factory import build_agent
-from operator_agent.rag.indexer import DocsIndex
+from api_operator.adapters.openapi_generator import generate_adapter_from_openapi
+from api_operator.adapters.yaml_adapter import YamlAdapter, _token_from_env
+from api_operator.adapters.yaml_spec import save_adapter_spec
+from api_operator.core.config import Settings
+from api_operator.factory import build_agent
+from api_operator.rag.indexer import DocsIndex
 
 
 TENANT_YAML = """
@@ -54,7 +54,7 @@ async def test_yaml_tenant_host_url(tmp_path, monkeypatch):
             captured["url"] = url
             return FakeResponse()
 
-    monkeypatch.setattr("operator_agent.adapters.yaml_adapter.httpx.AsyncClient", lambda **k: FakeClient())
+    monkeypatch.setattr("api_operator.adapters.yaml_adapter.httpx.AsyncClient", lambda **k: FakeClient())
     result = await adapter._execute(spec, {"subdomain": "acme", "email": "a@b.com"})
     assert result.ok
     assert captured["url"] == "http://acme.app.test/api/team/invitations"
@@ -96,7 +96,7 @@ async def test_yaml_api_error_response(tmp_path, monkeypatch):
         async def __aexit__(self, *a): pass
         async def request(self, *a, **k): return FakeResponse()
 
-    monkeypatch.setattr("operator_agent.adapters.yaml_adapter.httpx.AsyncClient", lambda **k: FakeClient())
+    monkeypatch.setattr("api_operator.adapters.yaml_adapter.httpx.AsyncClient", lambda **k: FakeClient())
     result = await adapter._execute(spec, {})
     assert result.ok is False
     assert "403" in result.error
@@ -177,7 +177,7 @@ tools:
         async def __aexit__(self, *a): pass
         async def request(self, *a, **k): return FakeResponse()
 
-    monkeypatch.setattr("operator_agent.adapters.yaml_adapter.httpx.AsyncClient", lambda **k: FakeClient())
+    monkeypatch.setattr("api_operator.adapters.yaml_adapter.httpx.AsyncClient", lambda **k: FakeClient())
 
     agent = build_agent("yaml", config_path=str(yaml_path), token="t", settings=Settings(planner="mock"))
     response = await agent.chat("list workspaces", abilities=["workspaces:read"])

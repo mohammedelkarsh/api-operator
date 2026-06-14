@@ -3,11 +3,11 @@ import json
 import pytest
 from httpx import ASGITransport, AsyncClient
 
-from operator_agent.adapters.mock import reset_mock_store
-from operator_agent.adapters.yaml_spec import load_adapter_spec, save_adapter_spec
-from operator_agent.core.config import Settings
-from operator_agent.factory import build_agent
-from operator_agent.server.app import create_app
+from api_operator.adapters.mock import reset_mock_store
+from api_operator.adapters.yaml_spec import load_adapter_spec, save_adapter_spec
+from api_operator.core.config import Settings
+from api_operator.factory import build_agent
+from api_operator.server.app import create_app
 
 
 @pytest.fixture(autouse=True)

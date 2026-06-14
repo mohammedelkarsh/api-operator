@@ -1,6 +1,6 @@
-# Operator Agent
+# API Operator
 
-[![Tests](https://github.com/mohammedelkarsh/operator-agent/actions/workflows/tests.yml/badge.svg)](https://github.com/mohammedelkarsh/operator-agent/actions/workflows/tests.yml)
+[![Tests](https://github.com/mohammedelkarsh/api-operator/actions/workflows/tests.yml/badge.svg)](https://github.com/mohammedelkarsh/api-operator/actions/workflows/tests.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Python](https://img.shields.io/badge/python-3.11%2B-blue.svg)](https://www.python.org/downloads/)
 
@@ -11,8 +11,8 @@ Works with Laravel, Go, connectivity platforms, or any backend with a REST API.
 ## Install
 
 ```bash
-git clone https://github.com/mohammedelkarsh/operator-agent.git
-cd operator-agent
+git clone https://github.com/mohammedelkarsh/api-operator.git
+cd api-operator
 pip install -e ".[dev]"
 ```
 
@@ -25,8 +25,8 @@ pip install -e ".[dev,llm]"
 ## Quick start
 
 ```bash
-operator-agent demo
-operator-agent tools --adapter mock
+api-operator demo
+api-operator tools --adapter mock
 ```
 
 ## What ships in the core package
@@ -43,13 +43,13 @@ operator-agent tools --adapter mock
 ### Scaffold template
 
 ```bash
-operator-agent scaffold-adapter my-api --output examples
+api-operator scaffold-adapter my-api --output examples
 ```
 
 ### Generate from OpenAPI
 
 ```bash
-operator-agent generate-from-openapi openapi.yaml \
+api-operator generate-from-openapi openapi.yaml \
   --output adapter.yaml \
   --base-url http://api.example.test \
   --path-prefix /api
@@ -61,7 +61,7 @@ See [`examples/tenant-kit-adapter/`](examples/tenant-kit-adapter/) — pairs wit
 
 ```bash
 export TENANT_KIT_API_TOKEN="your-sanctum-token"
-operator-agent chat \
+api-operator chat \
   --adapter yaml \
   --config examples/tenant-kit-adapter/adapter.yaml \
   --base-url http://laravel-tenant-kit.test
@@ -113,7 +113,7 @@ Tenant subdomain APIs:
 ## HTTP server
 
 ```bash
-operator-agent serve --port 8100
+api-operator serve --port 8100
 ```
 
 ```json
@@ -153,12 +153,12 @@ pytest -q
 
 ## Configuration
 
-Copy `.env.example` to `.env` for local defaults (`operator_agent_PLANNER`, port, etc.).
+Copy `.env.example` to `.env` for local defaults (`api_operator_PLANNER`, port, etc.).
 
 ## Architecture
 
 ```
-operator-agent (core)          your projects
+api-operator (core)          your projects
 ├── agent runtime               ├── adapter.yaml
 ├── mock + yaml adapters        ├── openapi.yaml
 └── scaffold / generate CLI     └── HTTP APIs (Laravel, Go, …)

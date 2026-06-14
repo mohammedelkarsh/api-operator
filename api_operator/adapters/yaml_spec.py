@@ -148,7 +148,7 @@ def save_adapter_spec(spec: AdapterSpec, path: str | Path) -> None:
 def _default_prompt(raw: dict[str, Any]) -> str:
     name = raw.get("name", "project")
     return (
-        f"You are Operator Agent for {name}. "
+        f"You are API Operator for {name}. "
         "Use registered tools only. Confirm dangerous actions. "
         "Reply in the user's language."
     )

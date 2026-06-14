@@ -3,14 +3,14 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any
 
-from operator_agent.adapters.base import Adapter
-from operator_agent.core.config import Settings
-from operator_agent.core.executor import ToolExecutor
-from operator_agent.core.guardrails import Guardrails
-from operator_agent.core.memory import Session, SessionStore
-from operator_agent.core.planner import Planner
-from operator_agent.core.planner_openai import build_planner
-from operator_agent.tools.base import ToolRegistry
+from api_operator.adapters.base import Adapter
+from api_operator.core.config import Settings
+from api_operator.core.executor import ToolExecutor
+from api_operator.core.guardrails import Guardrails
+from api_operator.core.memory import Session, SessionStore
+from api_operator.core.planner import Planner
+from api_operator.core.planner_openai import build_planner
+from api_operator.tools.base import ToolRegistry
 
 
 @dataclass
