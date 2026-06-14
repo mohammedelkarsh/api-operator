@@ -9,14 +9,14 @@ from rich.console import Console
 from rich.markdown import Markdown
 from rich.table import Table
 
-from workspace_agent.adapters.mock import reset_mock_store
-from workspace_agent.adapters.openapi_generator import generate_adapter_from_openapi, scaffold_adapter
-from workspace_agent.adapters.yaml_spec import save_adapter_spec
-from workspace_agent.core.config import Settings
-from workspace_agent.factory import build_agent
-from workspace_agent.server.app import create_app
+from operator_agent.adapters.mock import reset_mock_store
+from operator_agent.adapters.openapi_generator import generate_adapter_from_openapi, scaffold_adapter
+from operator_agent.adapters.yaml_spec import save_adapter_spec
+from operator_agent.core.config import Settings
+from operator_agent.factory import build_agent
+from operator_agent.server.app import create_app
 
-app = typer.Typer(no_args_is_help=True, help="Workspace Agent CLI")
+app = typer.Typer(no_args_is_help=True, help="Operator Agent CLI")
 console = Console()
 
 
@@ -61,7 +61,7 @@ def chat(
     agent = _build_agent_from_cli(adapter, adapter_class, config, planner, base_url, token)
     sid = session_id
     label = config or adapter_class or adapter
-    console.print(f"[bold green]Workspace Agent[/bold green] adapter={label} planner={planner}")
+    console.print(f"[bold green]Operator Agent[/bold green] adapter={label} planner={planner}")
     console.print("Type 'exit' to quit.\n")
 
     while True:
@@ -133,7 +133,7 @@ def scaffold_cmd(
     out_dir = Path(output) / f"{name}-adapter"
     path = scaffold_adapter(name, out_dir, base_url=base_url)
     console.print(f"[green]Created[/green] {path}")
-    console.print(f"Edit the YAML, then run:\n  python -m workspace_agent.server.cli chat --adapter yaml --config {path}")
+    console.print(f"Edit the YAML, then run:\n  python -m operator_agent.server.cli chat --adapter yaml --config {path}")
 
 
 @app.command("generate-from-openapi")

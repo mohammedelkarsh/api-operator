@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from typing import Any
 
-from workspace_agent.adapters.base import Adapter
-from workspace_agent.tools.base import Tool, ToolRegistry, ToolResult
+from operator_agent.adapters.base import Adapter
+from operator_agent.tools.base import Tool, ToolRegistry, ToolResult
 
 
 class _MockStore:
@@ -76,7 +76,7 @@ class MockAdapter(Adapter):
 
     def system_prompt(self) -> str:
         return (
-            "You are Workspace Agent (mock mode). You help operators manage "
+            "You are Operator Agent (mock mode). You help operators manage "
             "workspaces and network links using registered tools only. "
             "Reply in the user's language (Arabic or English). "
             "Never claim an action succeeded unless a tool returned ok=true."

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from workspace_agent.tools.base import Tool
+from operator_agent.tools.base import Tool
 
 
 class Guardrails:

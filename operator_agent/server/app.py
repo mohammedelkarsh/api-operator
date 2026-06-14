@@ -4,10 +4,10 @@ from typing import Any
 
 from pydantic import BaseModel, Field
 
-from workspace_agent.adapters.registry import available_adapters
-from workspace_agent.core.config import Settings
-from workspace_agent.core.memory import SessionStore
-from workspace_agent.factory import build_agent
+from operator_agent.adapters.registry import available_adapters
+from operator_agent.core.config import Settings
+from operator_agent.core.memory import SessionStore
+from operator_agent.factory import build_agent
 
 
 class ChatRequest(BaseModel):
@@ -36,7 +36,7 @@ def create_app(settings: Settings | None = None):
     settings = settings or Settings()
     session_store = SessionStore()
     app = FastAPI(
-        title="Workspace Agent",
+        title="Operator Agent",
         version="0.1.0",
         description="Standalone AI operator with pluggable adapters",
     )

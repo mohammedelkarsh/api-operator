@@ -1,6 +1,6 @@
-# Workspace Agent
+# Operator Agent
 
-[![Tests](https://github.com/mohammedelkarsh/workspace-agent/actions/workflows/tests.yml/badge.svg)](https://github.com/mohammedelkarsh/workspace-agent/actions/workflows/tests.yml)
+[![Tests](https://github.com/mohammedelkarsh/operator-agent/actions/workflows/tests.yml/badge.svg)](https://github.com/mohammedelkarsh/operator-agent/actions/workflows/tests.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Python](https://img.shields.io/badge/python-3.11%2B-blue.svg)](https://www.python.org/downloads/)
 
@@ -11,8 +11,8 @@ Works with Laravel, Go, connectivity platforms, or any backend with a REST API.
 ## Install
 
 ```bash
-git clone https://github.com/mohammedelkarsh/workspace-agent.git
-cd workspace-agent
+git clone https://github.com/mohammedelkarsh/operator-agent.git
+cd operator-agent
 pip install -e ".[dev]"
 ```
 
@@ -25,8 +25,8 @@ pip install -e ".[dev,llm]"
 ## Quick start
 
 ```bash
-workspace-agent demo
-workspace-agent tools --adapter mock
+operator-agent demo
+operator-agent tools --adapter mock
 ```
 
 ## What ships in the core package
@@ -43,13 +43,13 @@ workspace-agent tools --adapter mock
 ### Scaffold template
 
 ```bash
-workspace-agent scaffold-adapter my-api --output examples
+operator-agent scaffold-adapter my-api --output examples
 ```
 
 ### Generate from OpenAPI
 
 ```bash
-workspace-agent generate-from-openapi openapi.yaml \
+operator-agent generate-from-openapi openapi.yaml \
   --output adapter.yaml \
   --base-url http://api.example.test \
   --path-prefix /api
@@ -61,7 +61,7 @@ See [`examples/tenant-kit-adapter/`](examples/tenant-kit-adapter/) — pairs wit
 
 ```bash
 export TENANT_KIT_API_TOKEN="your-sanctum-token"
-workspace-agent chat \
+operator-agent chat \
   --adapter yaml \
   --config examples/tenant-kit-adapter/adapter.yaml \
   --base-url http://laravel-tenant-kit.test
@@ -113,7 +113,7 @@ Tenant subdomain APIs:
 ## HTTP server
 
 ```bash
-workspace-agent serve --port 8100
+operator-agent serve --port 8100
 ```
 
 ```json
@@ -153,12 +153,12 @@ pytest -q
 
 ## Configuration
 
-Copy `.env.example` to `.env` for local defaults (`WORKSPACE_AGENT_PLANNER`, port, etc.).
+Copy `.env.example` to `.env` for local defaults (`operator_agent_PLANNER`, port, etc.).
 
 ## Architecture
 
 ```
-workspace-agent (core)          your projects
+operator-agent (core)          your projects
 ├── agent runtime               ├── adapter.yaml
 ├── mock + yaml adapters        ├── openapi.yaml
 └── scaffold / generate CLI     └── HTTP APIs (Laravel, Go, …)

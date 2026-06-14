@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Live integration test: workspace-agent + Laravel Tenant Kit.
+Live integration test: operator-agent + Laravel Tenant Kit.
 
 Prerequisites:
   - Tenant Kit cloned and running (see tenant-kit README)
@@ -52,7 +52,7 @@ async def obtain_token(base_url: str) -> str:
         base_url,
         ADMIN_EMAIL,
         ADMIN_PASSWORD,
-        device_name="workspace-agent-integration",
+        device_name="operator-agent-integration",
     )
 
 
@@ -65,7 +65,7 @@ async def obtain_tenant_token(base_url: str, subdomain: str) -> str:
         tenant_url,
         DEMO_USER_EMAIL,
         DEMO_USER_PASSWORD,
-        device_name="workspace-agent-integration-tenant",
+        device_name="operator-agent-integration-tenant",
         abilities=["user:read", "team:read", "team:invite"],
     )
 
@@ -132,8 +132,8 @@ async def run_agent_steps(
     workspace_subdomain: str,
     invite_subdomain: str,
 ) -> list[str]:
-    from workspace_agent.core.config import Settings
-    from workspace_agent.factory import build_agent
+    from operator_agent.core.config import Settings
+    from operator_agent.factory import build_agent
 
     if not ADAPTER_YAML.exists():
         raise FileNotFoundError(f"Missing adapter config: {ADAPTER_YAML}")
@@ -218,7 +218,7 @@ async def verify_api(base_url: str, token: str, workspace_subdomain: str) -> Non
 
 
 async def main() -> int:
-    parser = argparse.ArgumentParser(description="Integrate workspace-agent with tenant-kit")
+    parser = argparse.ArgumentParser(description="Integrate operator-agent with tenant-kit")
     parser.add_argument(
         "--base-url",
         default="",
@@ -239,7 +239,7 @@ async def main() -> int:
     subdomain = (args.subdomain or f"agent{uuid.uuid4().hex[:8]}").lower()
     invite_subdomain = args.invite_subdomain.lower()
 
-    print("Workspace Agent × Tenant Kit — integration test")
+    print("Operator Agent × Tenant Kit — integration test")
     print(f"Base URL: {base_url}")
     print(f"Subdomain: {subdomain} (invite on '{invite_subdomain}')")
     print(f"Adapter:  {ADAPTER_YAML}")

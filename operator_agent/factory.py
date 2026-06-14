@@ -2,10 +2,10 @@ from __future__ import annotations
 
 from typing import Any
 
-from workspace_agent.core.agent import Agent
-from workspace_agent.core.config import Settings
-from workspace_agent.core.memory import SessionStore
-from workspace_agent.adapters.registry import load_adapter
+from operator_agent.core.agent import Agent
+from operator_agent.core.config import Settings
+from operator_agent.core.memory import SessionStore
+from operator_agent.adapters.registry import load_adapter
 
 
 def build_agent(

@@ -3,14 +3,14 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any
 
-from workspace_agent.adapters.base import Adapter
-from workspace_agent.core.config import Settings
-from workspace_agent.core.executor import ToolExecutor
-from workspace_agent.core.guardrails import Guardrails
-from workspace_agent.core.memory import Session, SessionStore
-from workspace_agent.core.planner import Planner
-from workspace_agent.core.planner_openai import build_planner
-from workspace_agent.tools.base import ToolRegistry
+from operator_agent.adapters.base import Adapter
+from operator_agent.core.config import Settings
+from operator_agent.core.executor import ToolExecutor
+from operator_agent.core.guardrails import Guardrails
+from operator_agent.core.memory import Session, SessionStore
+from operator_agent.core.planner import Planner
+from operator_agent.core.planner_openai import build_planner
+from operator_agent.tools.base import ToolRegistry
 
 
 @dataclass

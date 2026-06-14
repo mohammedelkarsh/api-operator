@@ -3,7 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any, Protocol
 
-from workspace_agent.tools.base import ToolRegistry
+from operator_agent.tools.base import ToolRegistry
 
 
 @dataclass

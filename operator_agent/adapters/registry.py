@@ -3,9 +3,9 @@ from __future__ import annotations
 import importlib
 from typing import Any
 
-from workspace_agent.adapters.base import Adapter
-from workspace_agent.adapters.mock import MockAdapter
-from workspace_agent.adapters.yaml_adapter import YamlAdapter
+from operator_agent.adapters.base import Adapter
+from operator_agent.adapters.mock import MockAdapter
+from operator_agent.adapters.yaml_adapter import YamlAdapter
 
 _BUILTIN: dict[str, type[Adapter]] = {
     "mock": MockAdapter,

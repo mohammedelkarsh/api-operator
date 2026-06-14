@@ -16,8 +16,8 @@ def tenant_kit_env():
 
 @pytest.mark.asyncio
 async def test_live_list_workspaces(tenant_kit_env):
-    from workspace_agent.factory import build_agent
-    from workspace_agent.core.config import Settings
+    from operator_agent.factory import build_agent
+    from operator_agent.core.config import Settings
 
     agent = build_agent(
         "yaml",

@@ -1,9 +1,9 @@
 import pytest
 
-from workspace_agent.adapters.mock import MockAdapter, get_mock_store, reset_mock_store
-from workspace_agent.adapters.registry import available_adapters, load_adapter, register_adapter
-from workspace_agent.adapters.base import Adapter
-from workspace_agent.tools.base import ToolRegistry
+from operator_agent.adapters.mock import MockAdapter, get_mock_store, reset_mock_store
+from operator_agent.adapters.registry import available_adapters, load_adapter, register_adapter
+from operator_agent.adapters.base import Adapter
+from operator_agent.tools.base import ToolRegistry
 
 
 @pytest.fixture(autouse=True)

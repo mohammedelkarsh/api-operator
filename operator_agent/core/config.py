@@ -3,7 +3,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
-        env_prefix="WORKSPACE_AGENT_",
+        env_prefix="operator_agent_",
         env_file=".env",
         extra="ignore",
     )

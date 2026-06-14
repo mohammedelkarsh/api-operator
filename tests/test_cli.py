@@ -3,8 +3,8 @@ from pathlib import Path
 
 from typer.testing import CliRunner
 
-from workspace_agent.adapters.mock import reset_mock_store
-from workspace_agent.server.cli import app
+from operator_agent.adapters.mock import reset_mock_store
+from operator_agent.server.cli import app
 
 runner = CliRunner()
 

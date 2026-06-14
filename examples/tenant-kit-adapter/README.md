@@ -6,7 +6,7 @@ Configure the agent for [Laravel Tenant Kit](https://github.com/mohammedelkarsh/
 
 ```bash
 export TENANT_KIT_API_TOKEN="your-sanctum-token"
-workspace-agent chat \
+operator-agent chat \
   --adapter yaml \
   --config examples/tenant-kit-adapter/adapter.yaml \
   --base-url http://laravel-tenant-kit.test
@@ -15,7 +15,7 @@ workspace-agent chat \
 Or pass the token on the CLI:
 
 ```bash
-workspace-agent chat \
+operator-agent chat \
   --adapter yaml \
   --config examples/tenant-kit-adapter/adapter.yaml \
   --token "YOUR_TOKEN" \
@@ -25,7 +25,7 @@ workspace-agent chat \
 List available tools:
 
 ```bash
-workspace-agent tools \
+operator-agent tools \
   --adapter yaml \
   --config examples/tenant-kit-adapter/adapter.yaml
 ```
@@ -58,7 +58,7 @@ Edit `adapter.yaml` — add tools, change paths, set `dangerous: true` for confi
 
 ## Integration test
 
-From the workspace-agent repo root:
+From the operator-agent repo root:
 
 ```bash
 python scripts/integration_tenant_kit.py
@@ -68,4 +68,4 @@ Expect `INTEGRATION PASSED`.
 
 ## Related
 
-Tenant Kit ships a copy under `integrations/workspace-agent/` (see tenant-kit repo).
+Tenant Kit ships a copy under `integrations/operator-agent/` (see tenant-kit repo).
