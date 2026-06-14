@@ -1,0 +1,57 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "workspace-agent"
+version = "0.9.0"
+description = "Standalone AI operator agent with pluggable adapters for multi-project APIs"
+readme = "README.md"
+requires-python = ">=3.11"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [{ name = "Mohammed Elkarsh" }]
+keywords = ["ai", "agent", "llm", "tools", "saas", "multi-tenant", "yaml", "openapi"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+dependencies = [
+    "httpx>=0.27.0",
+    "pydantic>=2.7.0",
+    "pydantic-settings>=2.3.0",
+    "pyyaml>=6.0.1",
+    "typer>=0.12.0",
+    "rich>=13.7.0",
+    "fastapi>=0.111.0",
+    "uvicorn[standard]>=0.30.0",
+]
+
+[project.optional-dependencies]
+llm = ["openai>=1.35.0"]
+dev = ["pytest>=8.2.0", "pytest-asyncio>=0.23.0", "httpx>=0.27.0"]
+
+[project.scripts]
+workspace-agent = "workspace_agent.server.cli:app"
+
+[project.urls]
+Homepage = "https://github.com/mohammedelkarsh/workspace-agent"
+Repository = "https://github.com/mohammedelkarsh/workspace-agent"
+Issues = "https://github.com/mohammedelkarsh/workspace-agent/issues"
+Changelog = "https://github.com/mohammedelkarsh/workspace-agent/blob/main/CHANGELOG.md"
+
+[tool.hatch.build.targets.wheel]
+packages = ["workspace_agent"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+markers = [
+    "integration: live tenant-kit tests (requires TENANT_KIT_BASE_URL + TOKEN)",
+]
