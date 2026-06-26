@@ -13,7 +13,7 @@ def test_cli_demo():
     reset_mock_store()
     result = runner.invoke(app, ["demo"])
     assert result.exit_code == 0
-    assert "list_workspaces succeeded" in result.stdout
+    assert "Found" in result.stdout or "No workspaces found" in result.stdout
     assert "Demo complete" in result.stdout
 
 

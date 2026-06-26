@@ -50,7 +50,7 @@ async def test_tools_endpoint_mock(app):
     async with AsyncClient(transport=transport, base_url="http://test") as client:
         response = await client.get("/v1/tools?adapter=mock")
     assert response.status_code == 200
-    assert len(response.json()["tools"]) == 5
+    assert len(response.json()["tools"]) == 7
 
 
 @pytest.mark.asyncio

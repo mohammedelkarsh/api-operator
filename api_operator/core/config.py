@@ -16,3 +16,4 @@ class Settings(BaseSettings):
     openai_model: str = "gpt-4o-mini"
     require_confirm_dangerous: bool = True
     log_tool_calls: bool = True
+    cors_origins: str = ""  # comma-separated origins; empty disables CORS middleware

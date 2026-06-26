@@ -22,7 +22,7 @@ def test_available_adapters_includes_mock_and_yaml():
 def test_load_mock_adapter():
     adapter = load_adapter("mock")
     assert adapter.name == "mock"
-    assert len(adapter.build_registry().list_tools()) == 5
+    assert len(adapter.build_registry().list_tools()) == 7
 
 
 def test_load_yaml_requires_config():

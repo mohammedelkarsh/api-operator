@@ -2,6 +2,21 @@
 
 All notable changes to this project are documented in this file.
 
+## [0.10.0] - 2026-06-15
+
+### Added
+
+- YAML adapter `connect_host` — route HTTP to an internal host (e.g. Docker `nginx`) while preserving logical `Host` headers for multi-tenant subdomains
+- Optional CORS for `api-operator serve` via `API_OPERATOR_CORS_ORIGINS` (comma-separated)
+- `Dockerfile` for containerized deployments
+- `formatters.py` — human-readable tool success messages (no raw JSON in chat replies)
+- Mock adapter tools: `get_usage`, `get_subscription`
+
+### Changed
+
+- Mock planner — friendlier help text and NL patterns for tenant-kit flows
+- FastAPI app version metadata updated to 0.10.0
+
 ## [0.9.0] - 2026-06-14
 
 Renamed to **`api-operator`** (GitHub + PyPI). PyPI blocks names starting with `operator` (stdlib conflict).

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass
 from typing import Any, Protocol
 
@@ -38,13 +39,12 @@ class MockPlanner:
         lower = text.lower()
 
         if "help" in lower or "مساعدة" in text or lower.strip() == "tools":
-            names = ", ".join(registry.names())
             return PlanStep(
                 type="respond",
                 content=(
-                    "I can run these tools: "
-                    f"{names}. Try: 'list workspaces', 'create workspace Acme subdomain acme', "
-                    "'invite admin@acme.com to acme', 'provision link Riyadh Jeddah 500'."
+                    "I'm your Tenant Kit assistant. I can help with workspaces "
+                    "(list, create), billing (usage, subscription), and team invites. "
+                    "Use the chat menu buttons for a guided step-by-step flow."
                 ),
             )
 
@@ -83,6 +83,22 @@ class MockPlanner:
             if args.get("site_a") and args.get("site_b") and registry.get("provision_link"):
                 return PlanStep(type="tool", tool_name="provision_link", tool_args=args)
 
+        if _wants_get_subscription(lower, text) and registry.get("get_subscription"):
+            workspace_id = _extract_workspace_id(text) or "demo"
+            return PlanStep(
+                type="tool",
+                tool_name="get_subscription",
+                tool_args={"workspace_id": workspace_id},
+            )
+
+        if _wants_get_usage(lower, text) and registry.get("get_usage"):
+            workspace_id = _extract_workspace_id(text) or "demo"
+            return PlanStep(
+                type="tool",
+                tool_name="get_usage",
+                tool_args={"workspace_id": workspace_id},
+            )
+
         if _wants_list_connections(lower, text) and registry.get("list_connections"):
             return PlanStep(type="tool", tool_name="list_connections", tool_args={})
 
@@ -102,8 +118,10 @@ def _wants_create_workspace(lower: str) -> bool:
     return (
         "create workspace" in lower
         or "new workspace" in lower
+        or "add workspace" in lower
         or "أنشئ workspace" in lower
         or "انشئ workspace" in lower
+        or bool(re.search(r"\b(create|add|new)\b.*\bworkspace", lower))
     )
 
 
@@ -122,19 +140,60 @@ def _wants_list_connections(lower: str, text: str) -> bool:
 
 
 def _wants_list_workspaces(lower: str, text: str) -> bool:
-    if "workspace" not in lower and "workspace" not in text:
-        return False
     if _wants_create_workspace(lower):
+        return False
+    if "workspace" not in lower and "workspace" not in text and "مساح" not in text:
+        return False
+    if re.search(r"\b(usage|subscription|invite)\b", lower):
         return False
     return (
         "list workspace" in lower
         or "list workspaces" in lower
+        or "list of workspace" in lower
         or "show workspace" in lower
         or "show workspaces" in lower
+        or "show me workspace" in lower
+        or "get workspace" in lower
+        or "get workspaces" in lower
+        or "what workspace" in lower
+        or "which workspace" in lower
         or lower.strip() == "workspaces"
         or "ورّيني" in text
         or "اعرض" in text
+        or bool(re.search(r"\b(list|show|get|display|what|which|all)\b.*\bworkspaces?\b", lower))
+        or bool(re.search(r"\bworkspaces?\b.*\b(list|show|all)\b", lower))
+        or bool(re.search(r"\bi want\b.*\bworkspaces?\b", lower))
     )
+
+
+def _wants_get_usage(lower: str, text: str) -> bool:
+    return "usage" in lower or "استخدام" in text or "الاستخدام" in text
+
+
+def _wants_get_subscription(lower: str, text: str) -> bool:
+    return (
+        "subscription" in lower
+        or "subscribe" in lower
+        or "اشتراك" in text
+        or "الاشتراك" in text
+    )
+
+
+def _extract_workspace_id(text: str) -> str | None:
+    lower = text.lower()
+    for token in ("for ", "workspace "):
+        if token in lower:
+            segment = lower.split(token, 1)[1].strip().split()
+            if segment:
+                candidate = segment[0].strip(".,?!")
+                if candidate and candidate not in {"a", "the", "my"}:
+                    return candidate
+    match = re.search(r"\b([a-z0-9][a-z0-9-]{1,62})\b", lower)
+    if match and match.group(1) not in {"demo", "usage", "subscription", "for", "get"}:
+        return match.group(1)
+    if "demo" in lower:
+        return "demo"
+    return None
 
 
 def _extract_workspace_args(text: str) -> dict[str, Any]:

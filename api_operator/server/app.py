@@ -32,14 +32,25 @@ class ChatResponse(BaseModel):
 
 def create_app(settings: Settings | None = None):
     from fastapi import FastAPI, HTTPException
+    from fastapi.middleware.cors import CORSMiddleware
 
     settings = settings or Settings()
     session_store = SessionStore()
     app = FastAPI(
         title="API Operator",
-        version="0.1.0",
+        version="0.10.0",
         description="Standalone AI operator with pluggable adapters",
     )
+
+    origins = [o.strip() for o in settings.cors_origins.split(",") if o.strip()]
+    if origins:
+        app.add_middleware(
+            CORSMiddleware,
+            allow_origins=origins,
+            allow_credentials=True,
+            allow_methods=["*"],
+            allow_headers=["*"],
+        )
 
     @app.get("/health")
     async def health() -> dict[str, str]:

@@ -90,7 +90,8 @@ async def test_help_lists_tools():
     agent = build_agent("mock", settings=Settings(planner="mock"))
     response = await agent.chat("help")
     assert response.status == "ok"
-    assert "create_workspace" in response.message or "list workspaces" in response.message.lower()
+    assert "workspaces" in response.message.lower()
+    assert "assistant" in response.message.lower()
 
 
 @pytest.mark.asyncio

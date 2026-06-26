@@ -64,6 +64,24 @@ class MockAdapter(Adapter):
         )
         registry.register(
             Tool(
+                name="get_usage",
+                description="Get usage metrics for a workspace",
+                handler=self._get_usage,
+                parameters={"workspace_id": str},
+                required=["workspace_id"],
+            )
+        )
+        registry.register(
+            Tool(
+                name="get_subscription",
+                description="Get subscription details for a workspace",
+                handler=self._get_subscription,
+                parameters={"workspace_id": str},
+                required=["workspace_id"],
+            )
+        )
+        registry.register(
+            Tool(
                 name="provision_link",
                 description="Provision a network link between two sites",
                 handler=self._provision_link,
@@ -120,6 +138,24 @@ class MockAdapter(Adapter):
     async def _list_connections(self) -> ToolResult:
         items = list(_MockStore.connections.values())
         return ToolResult(ok=True, data={"connections": items, "count": len(items)})
+
+    async def _get_usage(self, workspace_id: str) -> ToolResult:
+        key = workspace_id.strip().lower()
+        if key not in _MockStore.workspaces and key != "demo":
+            return ToolResult(ok=False, error=f"Workspace '{key}' not found.")
+        return ToolResult(
+            ok=True,
+            data={"workspace_id": key, "api_calls": 42, "storage_mb": 128},
+        )
+
+    async def _get_subscription(self, workspace_id: str) -> ToolResult:
+        key = workspace_id.strip().lower()
+        if key not in _MockStore.workspaces and key != "demo":
+            return ToolResult(ok=False, error=f"Workspace '{key}' not found.")
+        return ToolResult(
+            ok=True,
+            data={"workspace_id": key, "plan": "pro", "status": "active"},
+        )
 
     async def _provision_link(
         self,

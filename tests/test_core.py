@@ -129,6 +129,30 @@ async def test_mock_planner_routes():
     assert step.tool_name == "provision_link"
 
 
+@pytest.mark.asyncio
+async def test_mock_planner_natural_language():
+    from api_operator.adapters.mock import MockAdapter
+
+    planner = MockPlanner()
+    registry = MockAdapter().build_registry()
+
+    for phrase in (
+        "i want list of workspaces?",
+        "show me all workspaces",
+        "what workspaces do I have",
+    ):
+        step = await planner.plan(phrase, registry, [], "")
+        assert step.type == "tool" and step.tool_name == "list_workspaces", phrase
+
+    step = await planner.plan("get usage for demo", registry, [], "")
+    assert step.tool_name == "get_usage"
+    assert step.tool_args["workspace_id"] == "demo"
+
+    step = await planner.plan("subscription for demo", registry, [], "")
+    assert step.tool_name == "get_subscription"
+    assert step.tool_args["workspace_id"] == "demo"
+
+
 def test_tool_parameters_schema():
     schema = tool_parameters_schema({"name": str, "count": int}, ["name"])
     assert schema["properties"]["name"]["type"] == "string"

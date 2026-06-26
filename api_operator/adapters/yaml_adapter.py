@@ -3,6 +3,7 @@ from __future__ import annotations
 import os
 import re
 from typing import Any
+from urllib.parse import urlparse, urlunparse
 
 import httpx
 
@@ -28,6 +29,7 @@ class YamlAdapter(Adapter):
         config_path: str,
         token: str | None = None,
         base_url: str | None = None,
+        connect_host: str | None = None,
     ) -> None:
         self.spec = load_adapter_spec(config_path)
         self.name = self.spec.name
@@ -35,6 +37,7 @@ class YamlAdapter(Adapter):
         self.token = token or _token_from_env(self.spec.token_env)
         if base_url:
             self.spec.base_url = base_url.rstrip("/")
+        self.connect_host = connect_host or self.spec.connect_host
 
     def auth_context(self) -> dict[str, Any]:
         return {"token": "***" if self.token else None, "base_url": self.spec.base_url}
@@ -87,11 +90,13 @@ class YamlAdapter(Adapter):
         if self.token and self.spec.auth_type == "bearer":
             headers[self.spec.auth_header] = f"Bearer {self.token}"
 
+        request_url, headers = _apply_connect_host(url, self.connect_host, headers)
+
         try:
             async with httpx.AsyncClient(timeout=30.0) as client:
                 response = await client.request(
                     spec.method,
-                    url,
+                    request_url,
                     headers=headers,
                     json=json_body,
                     params=params,
@@ -173,3 +178,34 @@ def _token_from_env(env_name: str | None) -> str | None:
     if not env_name:
         return None
     return os.environ.get(env_name)
+
+
+def _apply_connect_host(
+    url: str,
+    connect_host: str | None,
+    headers: dict[str, str],
+) -> tuple[str, dict[str, str]]:
+    if not connect_host:
+        return url, headers
+
+    parsed = urlparse(url)
+    if not parsed.hostname:
+        return url, headers
+
+    host_header = parsed.hostname
+    if parsed.port:
+        host_header = f"{host_header}:{parsed.port}"
+
+    headers = dict(headers)
+    headers["Host"] = host_header
+    request_url = urlunparse(
+        (
+            parsed.scheme,
+            connect_host,
+            parsed.path,
+            parsed.params,
+            parsed.query,
+            parsed.fragment,
+        )
+    )
+    return request_url, headers

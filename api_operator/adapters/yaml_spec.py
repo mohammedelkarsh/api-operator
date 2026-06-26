@@ -39,6 +39,7 @@ class AdapterSpec:
     auth_type: str = "bearer"
     auth_header: str = "Authorization"
     token_env: str | None = None
+    connect_host: str | None = None
 
 
 def load_adapter_spec(path: str | Path) -> AdapterSpec:
@@ -84,6 +85,7 @@ def load_adapter_spec(path: str | Path) -> AdapterSpec:
             )
         )
 
+    connect_host = raw.get("connect_host")
     return AdapterSpec(
         name=str(raw.get("name", file_path.stem)),
         description=str(raw.get("description", "")),
@@ -93,6 +95,7 @@ def load_adapter_spec(path: str | Path) -> AdapterSpec:
         auth_type=str(auth.get("type", "bearer")),
         auth_header=str(auth.get("header", "Authorization")),
         token_env=auth.get("env_token"),
+        connect_host=str(connect_host).strip() if connect_host else None,
     )
 
 

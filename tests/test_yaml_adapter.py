@@ -61,6 +61,40 @@ async def test_yaml_tenant_host_url(tmp_path, monkeypatch):
 
 
 @pytest.mark.asyncio
+async def test_yaml_connect_host_routes_via_internal_nginx(tmp_path, monkeypatch):
+    path = tmp_path / "c.yaml"
+    path.write_text(
+        "name: x\nbase_url: http://app.test\ntools:\n  - name: t\n    method: GET\n    path: /api/workspaces\n",
+        encoding="utf-8",
+    )
+    adapter = YamlAdapter(config_path=str(path), token="tok", connect_host="nginx")
+    spec = adapter.spec.tools[0]
+
+    captured: dict[str, object] = {}
+
+    class FakeResponse:
+        status_code = 200
+        text = ""
+        def json(self): return {"data": []}
+        @property
+        def is_success(self): return True
+
+    class FakeClient:
+        async def __aenter__(self): return self
+        async def __aexit__(self, *a): pass
+        async def request(self, method, url, **kwargs):
+            captured["url"] = url
+            captured["headers"] = kwargs.get("headers", {})
+            return FakeResponse()
+
+    monkeypatch.setattr("api_operator.adapters.yaml_adapter.httpx.AsyncClient", lambda **k: FakeClient())
+    result = await adapter._execute(spec, {})
+    assert result.ok
+    assert captured["url"] == "http://nginx/api/workspaces"
+    assert captured["headers"]["Host"] == "app.test"
+
+
+@pytest.mark.asyncio
 async def test_yaml_missing_token(tmp_path):
     path = tmp_path / "a.yaml"
     path.write_text(
@@ -182,4 +216,5 @@ tools:
     agent = build_agent("yaml", config_path=str(yaml_path), token="t", settings=Settings(planner="mock"))
     response = await agent.chat("list workspaces", abilities=["workspaces:read"])
     assert response.status == "ok"
-    assert "list_workspaces" in response.message
+    assert "Found 1 workspace" in response.message
+    assert response.tool == "list_workspaces"

@@ -57,6 +57,16 @@ tools:
         type: string
         required: true
 
+  - name: get_usage
+    description: Get current billing period usage meters for a workspace
+    method: GET
+    path: /api/workspaces/{workspace_id}/usage
+    requires_ability: workspaces:read
+    parameters:
+      workspace_id:
+        type: string
+        required: true
+
   - name: invite_team_member
     description: Invite a member on the tenant subdomain API
     method: POST

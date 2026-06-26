@@ -6,6 +6,7 @@ from typing import Any
 from api_operator.adapters.base import Adapter
 from api_operator.core.config import Settings
 from api_operator.core.executor import ToolExecutor
+from api_operator.core.formatters import format_tool_success
 from api_operator.core.guardrails import Guardrails
 from api_operator.core.memory import Session, SessionStore
 from api_operator.core.planner import Planner
@@ -136,7 +137,7 @@ class Agent:
 
         payload = result.to_dict() if result else {"ok": False}
         if payload.get("ok"):
-            reply = f"{tool_name} succeeded: {payload.get('data')}"
+            reply = format_tool_success(tool_name, payload.get("data") or {})
             session.add("assistant", reply, status="ok", tool=tool_name)
             return AgentResponse(
                 session_id=session.id,
