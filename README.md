@@ -1,6 +1,7 @@
 # API Operator
 
 [![Tests](https://github.com/mohammedelkarsh/api-operator/actions/workflows/tests.yml/badge.svg)](https://github.com/mohammedelkarsh/api-operator/actions/workflows/tests.yml)
+[![PyPI](https://img.shields.io/pypi/v/api-operator.svg)](https://pypi.org/project/api-operator/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Python](https://img.shields.io/badge/python-3.11%2B-blue.svg)](https://www.python.org/downloads/)
 
@@ -10,13 +11,27 @@ Works with Laravel, Go, connectivity platforms, or any backend with a REST API.
 
 ## Install
 
+**From PyPI (recommended):**
+
+```bash
+pip install api-operator==0.10.0
+```
+
+Optional OpenAI planner:
+
+```bash
+pip install "api-operator[llm]==0.10.0"
+```
+
+**From source (development):**
+
 ```bash
 git clone https://github.com/mohammedelkarsh/api-operator.git
 cd api-operator
 pip install -e ".[dev]"
 ```
 
-Optional OpenAI planner:
+Optional OpenAI planner (source):
 
 ```bash
 pip install -e ".[dev,llm]"
