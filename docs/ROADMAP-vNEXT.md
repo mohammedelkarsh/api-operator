@@ -363,6 +363,7 @@ rag = ["pgvector...", "sqlalchemy..."]  # يُحدد بدقة عند التنف�
 - [x] مقاييس بسيطة: metadata.knowledge.hits / sources على الرد (تحسين اختيار الأداة يُقاس لاحقًا مع L1).
 - [x] وثيقة `docs/knowledge.md`.
 - [x] L1 embeddings + L2 pgvector retrieval (`api-operator[rag]`, إصدار 1.1.0).
+- [x] منشور على PyPI: `pip install api-operator==1.1.0`.
 
 ---
 
