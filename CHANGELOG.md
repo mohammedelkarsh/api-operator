@@ -2,6 +2,15 @@
 
 All notable changes to this project are documented in this file.
 
+## [1.1.0] - 2026-11-23
+
+### Added
+
+- **L1 embedding knowledge** (`knowledge_backend=embedding`) with OpenAI or offline hashing embedder
+- **L2 pgvector retrieval** (`knowledge_backend=pgvector` + `knowledge_pg_dsn`)
+- Optional extra: `pip install "api-operator[rag]"`
+- Docs: expanded `docs/knowledge.md`
+
 ## [1.0.0] - 2026-11-23
 
 **Safe API Agent** production label. Builds on 0.11 foundation; additive and backward compatible for existing adapters.

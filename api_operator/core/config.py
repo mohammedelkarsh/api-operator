@@ -22,6 +22,9 @@ class Settings(BaseSettings):
     audit_path: str | None = None  # JSONL file; None = NullAuditSink unless injected
     dry_run: bool = False
     quota_budget: float | None = None  # enables InMemoryQuotaGateway when set
-    knowledge_enabled: bool = False  # opt-in keyword RAG (L0)
-    knowledge_paths: str | None = None  # comma-separated doc paths
+    knowledge_enabled: bool = False  # opt-in knowledge (off by default)
+    knowledge_paths: str | None = None  # comma-separated doc paths (L0/L1)
     knowledge_limit: int = 3
+    knowledge_backend: str = "keyword"  # keyword | embedding | pgvector
+    knowledge_embedding_model: str = "text-embedding-3-small"
+    knowledge_pg_dsn: str | None = None  # postgres DSN for L2 pgvector

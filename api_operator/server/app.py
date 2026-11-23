@@ -44,8 +44,8 @@ def create_app(settings: Settings | None = None):
     session_store = SessionStore()
     app = FastAPI(
         title="API Operator",
-        version="1.0.0",
-        description="Safe API Agent — policy, dry-run, audit, optional knowledge",
+        version="1.1.0",
+        description="Safe API Agent — policy, dry-run, audit, optional knowledge/RAG",
     )
 
     origins = [o.strip() for o in settings.cors_origins.split(",") if o.strip()]

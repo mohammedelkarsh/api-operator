@@ -104,6 +104,10 @@ class Agent:
                 enabled=self.settings.knowledge_enabled,
                 paths=self.settings.knowledge_paths,
                 adapter_docs=self.adapter.docs_paths(),
+                backend=self.settings.knowledge_backend,
+                openai_api_key=self.settings.openai_api_key,
+                embedding_model=self.settings.knowledge_embedding_model,
+                pg_dsn=self.settings.knowledge_pg_dsn,
             )
 
     async def chat(
@@ -226,12 +230,14 @@ class Agent:
             tenant_id=tenant_id,
             limit=self.settings.knowledge_limit,
         )
+        backend = self.settings.knowledge_backend
         if not hits:
-            return base, {"knowledge": {"enabled": True, "hits": 0}}
+            return base, {"knowledge": {"enabled": True, "backend": backend, "hits": 0}}
         block = format_knowledge_context(hits)
         meta = {
             "knowledge": {
                 "enabled": True,
+                "backend": backend,
                 "hits": len(hits),
                 "sources": [h.source for h in hits],
             }

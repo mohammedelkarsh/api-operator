@@ -362,7 +362,7 @@ rag = ["pgvector...", "sqlalchemy..."]  # يُحدد بدقة عند التنف�
 - [x] عزل tenant على مستوى الفهرس/الاستعلام.
 - [x] مقاييس بسيطة: metadata.knowledge.hits / sources على الرد (تحسين اختيار الأداة يُقاس لاحقًا مع L1).
 - [x] وثيقة `docs/knowledge.md`.
-- [ ] L1 embeddings + L2 pgvector (ما زال لـ 1.1.0 extra).
+- [x] L1 embeddings + L2 pgvector retrieval (`api-operator[rag]`, إصدار 1.1.0).
 
 ---
 

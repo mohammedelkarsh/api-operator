@@ -2,45 +2,87 @@
 
 Knowledge helps the planner choose the right tool. It is **off by default**.
 
-## L0 — Keyword (ships in core / 1.0+)
-
-No embeddings, no extra packages.
-
 ```bash
 export API_OPERATOR_KNOWLEDGE_ENABLED=true
-export API_OPERATOR_KNOWLEDGE_PATHS="docs/api.md,README.md"
-api-operator chat --adapter mock
 ```
 
-Or inject a store:
+## Backends
+
+| Backend | Setting | Needs | Notes |
+|---------|---------|--------|--------|
+| **keyword** (L0) | `API_OPERATOR_KNOWLEDGE_BACKEND=keyword` | core only | Default when knowledge is enabled |
+| **embedding** (L1) | `…=embedding` | optional OpenAI key; else hashing embedder | In-memory vectors at startup |
+| **pgvector** (L2) | `…=pgvector` | `pip install 'api-operator[rag]'` + DSN | Host owns indexing |
+
+```bash
+export API_OPERATOR_KNOWLEDGE_PATHS="docs/api.md,README.md"
+export API_OPERATOR_KNOWLEDGE_BACKEND=keyword   # or embedding
+# export API_OPERATOR_OPENAI_API_KEY=...        # for OpenAI embeddings
+# export API_OPERATOR_KNOWLEDGE_PG_DSN=postgresql+psycopg://...
+```
+
+## L0 — Keyword
+
+No embeddings. Best for small curated docs.
+
+## L1 — Embedding (local index)
+
+Chunks docs at agent start, embeds them, ranks by cosine similarity.
+
+- With `API_OPERATOR_OPENAI_API_KEY`: uses `text-embedding-3-small` (override via `API_OPERATOR_KNOWLEDGE_EMBEDDING_MODEL`)
+- Without a key: uses a deterministic **hashing embedder** (fine for demos/tests, weaker quality)
 
 ```python
-from api_operator.rag import KeywordKnowledge
+from api_operator.rag import EmbeddingKnowledge, HashingEmbedder
 from api_operator.factory import build_agent
+from api_operator.core.config import Settings
 
-knowledge = KeywordKnowledge(["docs/guide.md"])
-agent = build_agent("mock", knowledge=knowledge, settings=Settings(knowledge_enabled=True))
+knowledge = EmbeddingKnowledge(["docs/guide.md"], embedder=HashingEmbedder())
+agent = build_agent(
+    "mock",
+    knowledge=knowledge,
+    settings=Settings(knowledge_enabled=True, knowledge_backend="embedding"),
+)
 ```
 
-Retrieved excerpts are appended to the planner `system_prompt`. Responses may include:
+## L2 — Postgres + pgvector
+
+Retrieval-only against a table you maintain (e.g. from Laravel):
+
+```sql
+CREATE EXTENSION IF NOT EXISTS vector;
+CREATE TABLE api_operator_knowledge (
+    id bigserial PRIMARY KEY,
+    source text NOT NULL,
+    excerpt text NOT NULL,
+    tenant_id text NULL,
+    embedding vector(1536) NOT NULL
+);
+```
+
+```bash
+pip install "api-operator[rag]"
+export API_OPERATOR_KNOWLEDGE_ENABLED=true
+export API_OPERATOR_KNOWLEDGE_BACKEND=pgvector
+export API_OPERATOR_KNOWLEDGE_PG_DSN="postgresql+psycopg://user:pass@localhost/app"
+```
+
+## Tenant isolation
+
+Paths containing `/tenants/{tenant_id}/` (and pgvector `tenant_id` column) stay private:
+
+- No `tenant_id` on `/v1/chat` → shared docs only
+- `tenant_id=acme` → shared + acme — never another tenant
+
+## Response metadata
 
 ```json
-"metadata": { "knowledge": { "enabled": true, "hits": 2, "sources": ["..."] } }
+"metadata": {
+  "knowledge": {
+    "enabled": true,
+    "backend": "embedding",
+    "hits": 2,
+    "sources": ["docs/guide.md"]
+  }
+}
 ```
-
-### Tenant isolation
-
-Paths containing `/tenants/{tenant_id}/` are private to that tenant:
-
-- Without `tenant_id` on `/v1/chat`: only shared docs (no `/tenants/` segment)
-- With `tenant_id=acme`: shared docs + `/tenants/acme/**` only — never another tenant
-
-## L1 / L2 — planned (1.1+)
-
-| Layer | Tech | Extra |
-|-------|------|--------|
-| L1 | Local embeddings | `pip install api-operator[rag]` (future) |
-| L2 | Postgres + pgvector | same extra |
-| L3 | Pinecone / Qdrant | later drivers |
-
-Keyword L0 remains available without the extra.

@@ -13,7 +13,7 @@ from api_operator.rag.indexer import DocsIndex
 class KnowledgeHit:
     source: str
     excerpt: str
-    score: int = 0
+    score: float = 0.0
     tenant_id: str | None = None
 
 
@@ -75,7 +75,7 @@ class KeywordKnowledge:
                 KnowledgeHit(
                     source=source,
                     excerpt=str(item.get("excerpt") or ""),
-                    score=int(item.get("score") or 0),
+                    score=float(item.get("score") or 0),
                     tenant_id=_tenant_from_source(source),
                 )
             )
@@ -116,9 +116,28 @@ def build_knowledge(
     enabled: bool,
     paths: str | None,
     adapter_docs: list[str] | None = None,
+    backend: str = "keyword",
+    openai_api_key: str | None = None,
+    embedding_model: str = "text-embedding-3-small",
+    pg_dsn: str | None = None,
 ) -> KnowledgeStore | None:
     if not enabled:
         return None
+
+    mode = (backend or "keyword").strip().lower()
+    if mode == "pgvector":
+        if not pg_dsn:
+            raise ValueError("knowledge_backend=pgvector requires knowledge_pg_dsn / API_OPERATOR_KNOWLEDGE_PG_DSN")
+        from api_operator.rag.embeddings import HashingEmbedder, OpenAIEmbedder
+        from api_operator.rag.pgvector import PgVectorKnowledge
+
+        embedder = (
+            OpenAIEmbedder(openai_api_key, model=embedding_model)
+            if openai_api_key
+            else HashingEmbedder()
+        )
+        return PgVectorKnowledge(pg_dsn, embedder=embedder)
+
     combined: list[str | Path] = []
     if paths:
         combined.extend(p.strip() for p in paths.split(",") if p.strip())
@@ -126,4 +145,16 @@ def build_knowledge(
         combined.extend(adapter_docs)
     if not combined:
         return None
+
+    if mode in {"embedding", "embeddings", "vector"}:
+        from api_operator.rag.embeddings import HashingEmbedder, OpenAIEmbedder
+        from api_operator.rag.vector import EmbeddingKnowledge
+
+        embedder = (
+            OpenAIEmbedder(openai_api_key, model=embedding_model)
+            if openai_api_key
+            else HashingEmbedder()
+        )
+        return EmbeddingKnowledge(combined, embedder=embedder)
+
     return KeywordKnowledge(combined)
