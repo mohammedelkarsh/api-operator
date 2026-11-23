@@ -10,7 +10,11 @@ from rich.markdown import Markdown
 from rich.table import Table
 
 from api_operator.adapters.mock import reset_mock_store
-from api_operator.adapters.openapi_generator import generate_adapter_from_openapi, scaffold_adapter
+from api_operator.adapters.openapi_generator import (
+    generate_adapter_from_openapi,
+    save_policy_draft,
+    scaffold_adapter,
+)
 from api_operator.adapters.yaml_spec import save_adapter_spec
 from api_operator.core.config import Settings
 from api_operator.factory import build_agent
@@ -27,6 +31,7 @@ def _build_agent_from_cli(
     planner: str,
     base_url: str | None,
     token: str | None,
+    policy_path: str | None = None,
 ) -> Any:
     settings = Settings(planner=planner, default_adapter=adapter)
     kwargs: dict[str, Any] = {}
@@ -42,6 +47,7 @@ def _build_agent_from_cli(
         settings=settings,
         adapter_class=adapter_class,
         config_path=config,
+        policy_path=policy_path,
         **kwargs,
     )
 
@@ -56,12 +62,19 @@ def chat(
     base_url: str | None = typer.Option(None, help="Override API base URL from YAML"),
     token: str | None = typer.Option(None, help="API bearer token"),
     auto_confirm: bool = typer.Option(False, help="Skip dangerous confirmations"),
+    dry_run: bool = typer.Option(False, "--dry-run", help="Plan + policy only; no tool side effects"),
+    policy: str | None = typer.Option(None, help="Optional policy.yaml path"),
 ) -> None:
     """Interactive chat in the terminal."""
-    agent = _build_agent_from_cli(adapter, adapter_class, config, planner, base_url, token)
+    agent = _build_agent_from_cli(
+        adapter, adapter_class, config, planner, base_url, token, policy_path=policy
+    )
     sid = session_id
     label = config or adapter_class or adapter
-    console.print(f"[bold green]API Operator[/bold green] adapter={label} planner={planner}")
+    mode = " dry-run" if dry_run else ""
+    console.print(
+        f"[bold green]API Operator[/bold green]{mode} adapter={label} planner={planner}"
+    )
     console.print("Type 'exit' to quit.\n")
 
     while True:
@@ -78,11 +91,21 @@ def chat(
                 session_id=sid,
                 abilities=_default_abilities(adapter),
                 auto_confirm=auto_confirm,
+                dry_run=dry_run,
             )
         )
         sid = response.session_id
-        color = {"ok": "green", "confirm": "yellow", "error": "red"}.get(response.status, "white")
+        color = {
+            "ok": "green",
+            "confirm": "yellow",
+            "error": "red",
+            "deny": "red",
+        }.get(response.status, "white")
         console.print(f"[bold {color}]agent>[/bold {color}] {response.message}")
+        if dry_run and response.dry_run_report and response.dry_run_report.would_call:
+            console.print(
+                f"[dim]would_call:[/dim] {response.dry_run_report.would_call.model_dump(mode='json')}"
+            )
 
 
 @app.command("serve")
@@ -143,8 +166,13 @@ def generate_openapi_cmd(
     base_url: str = typer.Option(..., help="API base URL"),
     path_prefix: str | None = typer.Option("/api", help="Only include paths starting with this prefix"),
     methods: str = typer.Option("GET,POST", help="Comma-separated HTTP methods to include"),
+    policy_out: str | None = typer.Option(
+        None,
+        help="Write draft policy.yaml (default: sibling policy.yaml next to adapter)",
+    ),
+    no_policy: bool = typer.Option(False, "--no-policy", help="Skip writing policy.yaml"),
 ) -> None:
-    """Generate adapter.yaml from an OpenAPI spec."""
+    """Generate adapter.yaml (+ optional policy draft) from an OpenAPI spec."""
     include = {m.strip().upper() for m in methods.split(",") if m.strip()}
     adapter_spec = generate_adapter_from_openapi(
         spec,
@@ -154,6 +182,10 @@ def generate_openapi_cmd(
     )
     save_adapter_spec(adapter_spec, output)
     console.print(f"[green]Generated[/green] {output} with {len(adapter_spec.tools)} tools")
+    if not no_policy:
+        policy_path = Path(policy_out) if policy_out else Path(output).with_name("policy.yaml")
+        save_policy_draft(adapter_spec, policy_path)
+        console.print(f"[green]Policy draft[/green] {policy_path}")
 
 
 @app.command("demo")

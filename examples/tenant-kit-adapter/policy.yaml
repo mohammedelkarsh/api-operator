@@ -1,0 +1,24 @@
+# Optional Safe API Agent policy for laravel-tenant-kit adapter.
+# Keep in sync with laravel-tenant-kit/integrations/api-operator/policy.yaml
+version: 1
+name: tenant_kit
+description: Conservative defaults for workspace/team tools
+default: allow
+
+confirm_tools:
+  - create_workspace
+  - invite_team_member
+
+max_calls:
+  list_workspaces: 50
+  get_usage: 30
+
+rules:
+  - id: block_viewer_writes
+    tools:
+      - create_workspace
+      - invite_team_member
+    roles:
+      - viewer
+    effect: deny
+    reason: "Viewer role cannot mutate workspaces or team."

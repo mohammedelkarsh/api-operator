@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-import re
 import json
+import re
 from pathlib import Path
 from typing import Any
 
@@ -10,6 +10,7 @@ import yaml
 from api_operator.adapters.yaml_spec import AdapterSpec, ParameterSpec, ToolSpec, save_adapter_spec
 
 _METHODS = {"get", "post", "put", "patch", "delete"}
+_WRITE_METHODS = frozenset({"POST", "PUT", "PATCH", "DELETE"})
 
 
 def generate_adapter_from_openapi(
@@ -22,6 +23,7 @@ def generate_adapter_from_openapi(
     include_methods: set[str] | None = None,
     tag_filter: set[str] | None = None,
     dangerous_paths: set[str] | None = None,
+    suggest_abilities: bool = True,
 ) -> AdapterSpec:
     path = Path(spec_path)
     text = path.read_text(encoding="utf-8")
@@ -56,7 +58,13 @@ def generate_adapter_from_openapi(
             if tag_filter and not (set(tags) & tag_filter):
                 continue
 
-            tool = _operation_to_tool(route, method.upper(), operation, dangerous_paths)
+            tool = _operation_to_tool(
+                route,
+                method.upper(),
+                operation,
+                dangerous_paths,
+                suggest_abilities=suggest_abilities,
+            )
             if tool:
                 tools.append(tool)
 
@@ -77,11 +85,45 @@ def generate_adapter_from_openapi(
     )
 
 
+def generate_policy_draft(adapter: AdapterSpec) -> dict[str, Any]:
+    """Build a conservative policy.yaml draft from an AdapterSpec."""
+    confirm = [t.name for t in adapter.tools if t.dangerous]
+    deny: list[str] = []
+    max_calls: dict[str, int] = {}
+    for tool in adapter.tools:
+        if tool.method == "GET" and not tool.dangerous:
+            max_calls[tool.name] = 50
+
+    return {
+        "version": 1,
+        "name": adapter.name,
+        "description": f"Auto-generated draft policy for {adapter.name}",
+        "default": "allow",
+        "confirm_tools": confirm,
+        "deny_tools": deny,
+        "max_calls": max_calls,
+        "rules": [],
+    }
+
+
+def save_policy_draft(adapter: AdapterSpec, path: str | Path) -> Path:
+    file_path = Path(path)
+    file_path.parent.mkdir(parents=True, exist_ok=True)
+    payload = generate_policy_draft(adapter)
+    file_path.write_text(
+        yaml.safe_dump(payload, sort_keys=False, allow_unicode=True),
+        encoding="utf-8",
+    )
+    return file_path
+
+
 def _operation_to_tool(
     route: str,
     method: str,
     operation: dict[str, Any],
     dangerous_paths: set[str],
+    *,
+    suggest_abilities: bool = True,
 ) -> ToolSpec | None:
     operation_id = operation.get("operationId")
     summary = operation.get("summary") or operation.get("description") or f"{method} {route}"
@@ -124,7 +166,9 @@ def _operation_to_tool(
             )
             body_template[str(pname)] = f"{{{pname}}}"
 
-    dangerous = method in {"POST", "PUT", "PATCH", "DELETE"} or route in dangerous_paths
+    # Write methods are dangerous by default for Safe API Agent
+    dangerous = method in _WRITE_METHODS or route in dangerous_paths
+    ability = _ability_from_tags(operation.get("tags") or [], method) if suggest_abilities else None
 
     return ToolSpec(
         name=name,
@@ -134,7 +178,21 @@ def _operation_to_tool(
         parameters=parameters,
         body=body_template,
         dangerous=dangerous,
+        requires_ability=ability,
     )
+
+
+def _ability_from_tags(tags: list[Any], method: str) -> str | None:
+    if not tags:
+        return None
+    raw = str(tags[0]).strip()
+    if not raw:
+        return None
+    slug = _slugify(raw)
+    if not slug:
+        return None
+    action = "write" if method in _WRITE_METHODS else "read"
+    return f"{slug}:{action}"
 
 
 def _tool_name(operation_id: str | None, method: str, route: str) -> str:
@@ -187,6 +245,17 @@ tools:
       title: "{{title}}"
 """
 
+SCAFFOLD_POLICY = """version: 1
+name: {name}
+description: Draft policy for {name} scaffold
+default: allow
+confirm_tools:
+  - create_item
+max_calls:
+  list_items: 50
+rules: []
+"""
+
 
 def scaffold_adapter(
     name: str,
@@ -194,6 +263,7 @@ def scaffold_adapter(
     *,
     base_url: str = "http://localhost:8000",
     description: str | None = None,
+    write_policy: bool = True,
 ) -> Path:
     directory = Path(output_dir)
     directory.mkdir(parents=True, exist_ok=True)
@@ -209,14 +279,21 @@ def scaffold_adapter(
         encoding="utf-8",
     )
 
+    if write_policy:
+        (directory / "policy.yaml").write_text(
+            SCAFFOLD_POLICY.format(name=name),
+            encoding="utf-8",
+        )
+
     readme = directory / "README.md"
     readme.write_text(
         f"""# {name} adapter (YAML)
 
-No Python required — edit `adapter.yaml` and run:
+No Python required — edit `adapter.yaml` (and optional `policy.yaml`) then run:
 
 ```powershell
 python -m api_operator.server.cli chat --adapter yaml --config adapter.yaml
+python -m api_operator.server.cli chat --adapter yaml --config adapter.yaml --dry-run
 ```
 
 Set token:

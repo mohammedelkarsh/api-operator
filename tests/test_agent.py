@@ -60,7 +60,7 @@ async def test_permission_denied_without_ability():
         abilities=["workspaces:read"],
         auto_confirm=True,
     )
-    assert response.status == "error"
+    assert response.status == "deny"
     assert "Permission denied" in response.message
 
 

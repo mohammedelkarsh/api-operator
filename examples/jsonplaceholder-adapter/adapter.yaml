@@ -1,0 +1,57 @@
+name: jsonplaceholder
+description: Public JSONPlaceholder demo API (no auth required)
+base_url: https://jsonplaceholder.typicode.com
+
+# No bearer token needed for this public sandbox API
+auth:
+  type: none
+  header: Authorization
+
+system_prompt: |
+  You are API Operator for JSONPlaceholder (https://jsonplaceholder.typicode.com).
+  Use tools to list/read/create posts. Writes are fake (API pretends success).
+  Confirm create/update/delete. Reply in the user's language.
+
+tools:
+  - name: list_posts
+    description: List all posts
+    method: GET
+    path: /posts
+    requires_ability: posts:read
+
+  - name: get_post
+    description: Get a single post by id
+    method: GET
+    path: /posts/{post_id}
+    requires_ability: posts:read
+    parameters:
+      post_id:
+        type: integer
+        required: true
+
+  - name: create_post
+    description: Create a post (JSONPlaceholder fakes persistence)
+    method: POST
+    path: /posts
+    dangerous: true
+    requires_ability: posts:write
+    parameters:
+      title:
+        type: string
+        required: true
+      body:
+        type: string
+        required: true
+      userId:
+        type: integer
+        required: true
+    body:
+      title: "{title}"
+      body: "{body}"
+      userId: "{userId}"
+
+  - name: list_users
+    description: List users
+    method: GET
+    path: /users
+    requires_ability: users:read

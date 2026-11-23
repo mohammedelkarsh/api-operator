@@ -1,29 +1,25 @@
-# API Operator
+# API Operator — Safe API Agent
 
 [![Tests](https://github.com/mohammedelkarsh/api-operator/actions/workflows/tests.yml/badge.svg)](https://github.com/mohammedelkarsh/api-operator/actions/workflows/tests.yml)
 [![PyPI](https://img.shields.io/pypi/v/api-operator.svg)](https://pypi.org/project/api-operator/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Python](https://img.shields.io/badge/python-3.11%2B-blue.svg)](https://www.python.org/downloads/)
 
-Standalone **AI operator runtime** with pluggable adapters. Talk to your HTTP APIs instead of clicking through admin panels.
+Turn any OpenAPI / `adapter.yaml` into an AI agent that can **reason and act on your APIs** with **policy, dry-run, audit, and quota hooks**.
 
-Works with Laravel, Go, connectivity platforms, or any backend with a REST API.
+> Retrieve (optional later) → Reason → Act — with permission, cost, and audit boundaries.
+
+Works with Laravel, Go, or any REST API. First-class example: [laravel-tenant-kit](https://github.com/mohammedelkarsh/laravel-tenant-kit).
 
 ## Install
 
-**From PyPI (recommended):**
-
 ```bash
-pip install api-operator==0.10.0
+pip install api-operator
+# optional OpenAI planner
+pip install "api-operator[llm]"
 ```
 
-Optional OpenAI planner:
-
-```bash
-pip install "api-operator[llm]==0.10.0"
-```
-
-**From source (development):**
+Development:
 
 ```bash
 git clone https://github.com/mohammedelkarsh/api-operator.git
@@ -31,37 +27,56 @@ cd api-operator
 pip install -e ".[dev]"
 ```
 
-Optional OpenAI planner (source):
-
-```bash
-pip install -e ".[dev,llm]"
-```
-
 ## Quick start
 
 ```bash
 api-operator demo
 api-operator tools --adapter mock
+api-operator chat --adapter mock --dry-run
 ```
 
-## What ships in the core package
+Public API demo (no Laravel):
+
+```bash
+api-operator chat \
+  --adapter yaml \
+  --config examples/jsonplaceholder-adapter/adapter.yaml \
+  --dry-run
+```
+
+## What ships in the core
 
 | In core | In your projects |
 |---------|------------------|
-| Agent runtime (plan, guard, execute) | `adapter.yaml` per API |
-| `mock` adapter (demo + tests) | OpenAPI specs |
-| `yaml` adapter | API tokens in `.env` |
-| CLI + HTTP server | Optional custom adapters |
+| Agent runtime (plan → policy → quota → execute) | `adapter.yaml` + optional `policy.yaml` |
+| Dry-run (`--dry-run` / `dry_run=true`) | OpenAPI specs |
+| AuditSink + redaction | API tokens in `.env` |
+| QuotaGateway hooks | Host billing (e.g. tenant-kit meters) |
+| `mock` + `yaml` adapters | Optional custom adapters |
+
+No hard dependency on Laravel, Postgres, or vector DBs.
+
+## Safe by default
+
+1. **Policy** — optional `policy.yaml` (allow / deny / confirm, session caps, roles)
+2. **Dry-run** — see the planned tool + upstream request without side effects
+3. **Audit** — JSONL / injectable sink; secrets redacted
+4. **Quota** — gate before execute; real billing stays in the host app
+
+Docs: [policy](docs/policy.md) · [dry-run](docs/dry-run.md) · [audit](docs/audit.md) · [quotas](docs/quotas.md) · [roadmap](docs/ROADMAP-vNEXT.md)
 
 ## Build an adapter without Python
 
-### Scaffold template
+### Scaffold
 
 ```bash
 api-operator scaffold-adapter my-api --output examples
+# writes adapter.yaml + policy.yaml + README
 ```
 
 ### Generate from OpenAPI
+
+Write methods (`POST`/`PATCH`/`PUT`/`DELETE`) are marked `dangerous`. Tag-based abilities are suggested. A draft `policy.yaml` is written next to the adapter.
 
 ```bash
 api-operator generate-from-openapi openapi.yaml \
@@ -70,9 +85,12 @@ api-operator generate-from-openapi openapi.yaml \
   --path-prefix /api
 ```
 
-### Laravel Tenant Kit example
+### Examples
 
-See [`examples/tenant-kit-adapter/`](examples/tenant-kit-adapter/) — pairs with [laravel-tenant-kit](https://github.com/mohammedelkarsh/laravel-tenant-kit).
+| Example | Purpose |
+|---------|---------|
+| [`examples/tenant-kit-adapter/`](examples/tenant-kit-adapter/) | Laravel Tenant Kit |
+| [`examples/jsonplaceholder-adapter/`](examples/jsonplaceholder-adapter/) | Public REST demo |
 
 ```bash
 export TENANT_KIT_API_TOKEN="your-sanctum-token"
@@ -98,12 +116,14 @@ tools:
     description: List items
     method: GET
     path: /api/items
+    requires_ability: items:read
 
   - name: create_item
     description: Create item
     method: POST
     path: /api/items
     dangerous: true
+    requires_ability: items:write
     parameters:
       title:
         type: string
@@ -112,18 +132,7 @@ tools:
       title: "{title}"
 ```
 
-Tenant subdomain APIs:
-
-```yaml
-  - name: invite_member
-    method: POST
-    path: /api/team/invitations
-    host: tenant
-    tenant_param: subdomain
-    parameters:
-      subdomain: { type: string, required: true }
-      email: { type: string, required: true }
-```
+Optional sibling `policy.yaml` loads automatically when you pass that adapter path.
 
 ## HTTP server
 
@@ -138,26 +147,9 @@ POST /v1/chat
   "config_path": "examples/tenant-kit-adapter/adapter.yaml",
   "adapter_config": { "token": "YOUR_TOKEN" },
   "message": "list workspaces",
-  "abilities": ["workspaces:read"]
+  "abilities": ["workspaces:read"],
+  "dry_run": false
 }
-```
-
-## Integration test (Tenant Kit)
-
-With [Tenant Kit](https://github.com/mohammedelkarsh/laravel-tenant-kit) running:
-
-```bash
-python scripts/integration_tenant_kit.py
-# Docker on port 8080:
-python scripts/integration_tenant_kit.py --base-url http://laravel-tenant-kit.test:8080
-```
-
-Optional pytest marker (requires env vars):
-
-```bash
-export TENANT_KIT_BASE_URL=http://laravel-tenant-kit.test
-export TENANT_KIT_API_TOKEN=your-token
-pytest -m integration -q
 ```
 
 ## Tests
@@ -166,17 +158,24 @@ pytest -m integration -q
 pytest -q
 ```
 
+Live Tenant Kit (optional):
+
+```bash
+python scripts/integration_tenant_kit.py
+pytest -m integration -q
+```
+
 ## Configuration
 
-Copy `.env.example` to `.env` for local defaults (`api_operator_PLANNER`, port, etc.).
+Copy `.env.example` → `.env`. Notable vars: `API_OPERATOR_PLANNER`, `API_OPERATOR_POLICY_PATH`, `API_OPERATOR_AUDIT_PATH`, `API_OPERATOR_QUOTA_BUDGET`, `API_OPERATOR_DRY_RUN`.
 
 ## Architecture
 
 ```
-api-operator (core)          your projects
-├── agent runtime               ├── adapter.yaml
-├── mock + yaml adapters        ├── openapi.yaml
-└── scaffold / generate CLI     └── HTTP APIs (Laravel, Go, …)
+api-operator (Safe API Agent)     your hosts
+├── plan → policy → quota → act     ├── adapter.yaml + policy.yaml
+├── dry-run + audit hooks           ├── OpenAPI
+└── mock / yaml adapters            └── Laravel / any REST API
 ```
 
 ## License

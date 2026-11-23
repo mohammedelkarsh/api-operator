@@ -23,3 +23,7 @@ class Adapter(ABC):
 
     def docs_paths(self) -> list[str]:
         return []
+
+    def preview_tool_call(self, tool_name: str, arguments: dict[str, Any]) -> dict[str, Any] | None:
+        """Optional dry-run preview of the upstream request. Default: unsupported."""
+        return None

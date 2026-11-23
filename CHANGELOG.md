@@ -2,6 +2,28 @@
 
 All notable changes to this project are documented in this file.
 
+## [0.11.0] - 2026-11-23
+
+Foundation for **Safe API Agent** (see `docs/ROADMAP-vNEXT.md`). Opt-in; existing adapters keep working.
+
+### Added
+
+- **Policy engine** (`policy.yaml`): allow / deny / confirm, deny lists, confirm lists, session `max_calls`, role/tenant rules
+- **Dry-run**: CLI `--dry-run`, HTTP `dry_run=true`, `DryRunReport` + YAML `would_call` preview
+- **Audit**: `AuditSink` protocol, JSONL / memory sinks, sensitive-field redaction
+- **Quota hooks**: `QuotaGateway` + in-memory budget gateway (host owns real billing)
+- Shared schemas: `PolicyDecision`, `QuotaReservation`, `AuditEvent`, `DryRunReport`
+- Docs: `docs/policy.md`, `docs/dry-run.md`, `docs/audit.md`, `docs/quotas.md`, `docs/public-api-inventory.md`
+- Example `examples/tenant-kit-adapter/policy.yaml`
+- Example `examples/jsonplaceholder-adapter/` (public REST, non–tenant-kit)
+- OpenAPI generator: tag-based `requires_ability`, write methods marked dangerous, draft `policy.yaml`
+- `scaffold-adapter` also writes `policy.yaml`
+
+### Changed
+
+- Agent `status` may be `deny` (additive) for policy/quota/ability rejection
+- README reframed as **Safe API Agent**; version `0.11.0`
+
 ## [0.10.0] - 2026-06-15
 
 ### Added

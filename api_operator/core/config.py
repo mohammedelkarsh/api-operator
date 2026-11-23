@@ -17,3 +17,8 @@ class Settings(BaseSettings):
     require_confirm_dangerous: bool = True
     log_tool_calls: bool = True
     cors_origins: str = ""  # comma-separated origins; empty disables CORS middleware
+    policy_path: str | None = None  # optional policy.yaml
+    audit_enabled: bool = True
+    audit_path: str | None = None  # JSONL file; None = NullAuditSink unless injected
+    dry_run: bool = False
+    quota_budget: float | None = None  # enables InMemoryQuotaGateway when set

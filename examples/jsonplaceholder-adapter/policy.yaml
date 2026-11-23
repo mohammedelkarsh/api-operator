@@ -1,0 +1,21 @@
+version: 1
+name: jsonplaceholder
+description: Demo policy for the public JSONPlaceholder adapter
+default: allow
+
+confirm_tools:
+  - create_post
+
+max_calls:
+  list_posts: 30
+  list_users: 20
+  get_post: 40
+
+rules:
+  - id: block_viewer_writes
+    tools:
+      - create_post
+    roles:
+      - viewer
+    effect: deny
+    reason: "Viewer role cannot create posts."

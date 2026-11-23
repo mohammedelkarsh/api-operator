@@ -18,6 +18,11 @@ class ChatRequest(BaseModel):
     config_path: str | None = None
     abilities: list[str] | None = None
     auto_confirm: bool = False
+    dry_run: bool = False
+    policy_path: str | None = None
+    role: str | None = None
+    tenant_id: str | None = None
+    actor_id: str | None = None
     adapter_config: dict[str, Any] = Field(default_factory=dict)
 
 
@@ -28,6 +33,7 @@ class ChatResponse(BaseModel):
     tool: str | None = None
     tool_result: dict[str, Any] | None = None
     metadata: dict[str, Any] = Field(default_factory=dict)
+    dry_run_report: dict[str, Any] | None = None
 
 
 def create_app(settings: Settings | None = None):
@@ -38,8 +44,8 @@ def create_app(settings: Settings | None = None):
     session_store = SessionStore()
     app = FastAPI(
         title="API Operator",
-        version="0.10.0",
-        description="Standalone AI operator with pluggable adapters",
+        version="0.11.0",
+        description="Safe API Agent — policy, dry-run, audit-ready operator",
     )
 
     origins = [o.strip() for o in settings.cors_origins.split(",") if o.strip()]
@@ -102,6 +108,7 @@ def create_app(settings: Settings | None = None):
                 adapter_class=payload.adapter_class,
                 config_path=cfg,
                 sessions=session_store,
+                policy_path=payload.policy_path,
                 **extra,
             )
         except (ValueError, TypeError) as exc:
@@ -112,6 +119,10 @@ def create_app(settings: Settings | None = None):
             session_id=payload.session_id,
             abilities=payload.abilities,
             auto_confirm=payload.auto_confirm,
+            dry_run=payload.dry_run,
+            role=payload.role,
+            tenant_id=payload.tenant_id,
+            actor_id=payload.actor_id,
         )
         return ChatResponse(
             session_id=response.session_id,
@@ -120,6 +131,11 @@ def create_app(settings: Settings | None = None):
             tool=response.tool,
             tool_result=response.tool_result,
             metadata=response.metadata,
+            dry_run_report=(
+                response.dry_run_report.model_dump(mode="json")
+                if response.dry_run_report
+                else None
+            ),
         )
 
     return app

@@ -51,6 +51,40 @@ class YamlAdapter(Adapter):
     def system_prompt(self) -> str:
         return self.spec.system_prompt
 
+    def preview_tool_call(self, tool_name: str, arguments: dict[str, Any]) -> dict[str, Any] | None:
+        spec = next((t for t in self.spec.tools if t.name == tool_name), None)
+        if spec is None:
+            return None
+        args = dict(arguments)
+        for name, param in spec.parameters.items():
+            if args.get(name) is None and param.default is not None:
+                args[name] = param.default
+        try:
+            url = self._build_url(spec, args)
+            json_body = self._build_body(spec.body, args) if spec.body else None
+            params = self._build_query(spec.query, args) if spec.query else None
+        except (ValueError, KeyError) as exc:
+            return {"error": str(exc), "method": spec.method, "path": spec.path}
+
+        headers = {"Accept": "application/json"}
+        if json_body is not None:
+            headers["Content-Type"] = "application/json"
+        if self.token and self.spec.auth_type == "bearer":
+            headers[self.spec.auth_header] = "Bearer ***REDACTED***"
+        request_url, headers = _apply_connect_host(url, self.connect_host, headers)
+        return {
+            "method": spec.method,
+            "url": request_url,
+            "headers": headers,
+            "body": json_body,
+            "query": params or {},
+            "path_params": {
+                key: args[key]
+                for key in _PLACEHOLDER.findall(spec.path)
+                if key in args
+            },
+        }
+
     def _build_tool(self, spec: ToolSpec) -> Tool:
         param_types: dict[str, type | str] = {}
         required: list[str] = []
