@@ -22,3 +22,6 @@ class Settings(BaseSettings):
     audit_path: str | None = None  # JSONL file; None = NullAuditSink unless injected
     dry_run: bool = False
     quota_budget: float | None = None  # enables InMemoryQuotaGateway when set
+    knowledge_enabled: bool = False  # opt-in keyword RAG (L0)
+    knowledge_paths: str | None = None  # comma-separated doc paths
+    knowledge_limit: int = 3

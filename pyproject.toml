@@ -4,8 +4,8 @@ build-backend = "hatchling.build"
 
 [project]
 name = "api-operator"
-version = "0.11.0"
-description = "Safe API Agent — run APIs with policy, quotas, and audit (pluggable adapters)"
+version = "1.0.0"
+description = "Safe API Agent — run APIs with policy, quotas, audit, and optional knowledge"
 readme = "README.md"
 requires-python = ">=3.11"
 license = "MIT"
@@ -36,6 +36,7 @@ dependencies = [
 [project.optional-dependencies]
 llm = ["openai>=1.35.0"]
 dev = ["pytest>=8.2.0", "pytest-asyncio>=0.23.0", "httpx>=0.27.0"]
+# `rag` extra (pgvector / embeddings) lands in 1.1.0 — keyword L0 needs no extra.
 
 [project.scripts]
 api-operator = "api_operator.server.cli:app"

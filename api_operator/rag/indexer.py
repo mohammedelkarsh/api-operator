@@ -32,6 +32,6 @@ class DocsIndex:
                 scored.append((score, source, chunk))
         scored.sort(key=lambda item: item[0], reverse=True)
         return [
-            {"source": source, "excerpt": chunk[:500]}
-            for _, source, chunk in scored[:limit]
+            {"source": source, "excerpt": chunk[:500], "score": score}
+            for score, source, chunk in scored[:limit]
         ]

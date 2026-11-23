@@ -9,6 +9,7 @@ from api_operator.core.config import Settings
 from api_operator.core.memory import SessionStore
 from api_operator.core.policy import PolicyEngine
 from api_operator.core.quota import QuotaGateway
+from api_operator.rag.knowledge import KnowledgeStore
 from api_operator.adapters.registry import load_adapter
 
 
@@ -38,6 +39,7 @@ def build_agent(
     policy_path: str | None = None,
     audit: AuditSink | None = None,
     quota: QuotaGateway | None = None,
+    knowledge: KnowledgeStore | None = None,
     **adapter_kwargs: Any,
 ) -> Agent:
     settings = settings or Settings()
@@ -56,4 +58,5 @@ def build_agent(
         policy_path=resolved,
         audit=audit,
         quota=quota,
+        knowledge=knowledge,
     )

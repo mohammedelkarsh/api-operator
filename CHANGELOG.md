@@ -2,6 +2,20 @@
 
 All notable changes to this project are documented in this file.
 
+## [1.0.0] - 2026-11-23
+
+**Safe API Agent** production label. Builds on 0.11 foundation; additive and backward compatible for existing adapters.
+
+### Added
+
+- Opt-in **keyword knowledge (L0)**: `API_OPERATOR_KNOWLEDGE_ENABLED` + `KNOWLEDGE_PATHS`
+- Tenant-scoped doc isolation under `/tenants/{id}/`
+- `docs/knowledge.md` (L1+ `rag` extra deferred to 1.1.0)
+
+### Changed
+
+- Package version **1.0.0**; README / FastAPI metadata aligned
+
 ## [0.11.0] - 2026-11-23
 
 Foundation for **Safe API Agent** (see `docs/ROADMAP-vNEXT.md`). Opt-in; existing adapters keep working.

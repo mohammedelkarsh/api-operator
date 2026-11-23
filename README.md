@@ -14,9 +14,9 @@ Works with Laravel, Go, or any REST API. First-class example: [laravel-tenant-ki
 ## Install
 
 ```bash
-pip install api-operator
+pip install api-operator==1.0.0
 # optional OpenAI planner
-pip install "api-operator[llm]"
+pip install "api-operator[llm]==1.0.0"
 ```
 
 Development:
@@ -52,9 +52,10 @@ api-operator chat \
 | Dry-run (`--dry-run` / `dry_run=true`) | OpenAPI specs |
 | AuditSink + redaction | API tokens in `.env` |
 | QuotaGateway hooks | Host billing (e.g. tenant-kit meters) |
+| Optional keyword knowledge (L0) | Doc paths / per-tenant FAQ |
 | `mock` + `yaml` adapters | Optional custom adapters |
 
-No hard dependency on Laravel, Postgres, or vector DBs.
+No hard dependency on Laravel, Postgres, or vector DBs. Knowledge is **off** until you enable it ([docs/knowledge.md](docs/knowledge.md)).
 
 ## Safe by default
 

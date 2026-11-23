@@ -33,6 +33,11 @@ from api_operator.core.schemas import (
     PolicyDecision,
     QuotaDecision,
 )
+from api_operator.rag.knowledge import (
+    KnowledgeStore,
+    build_knowledge,
+    format_knowledge_context,
+)
 from api_operator.tools.base import ToolRegistry
 
 
@@ -58,6 +63,7 @@ class Agent:
         policy_path: str | Path | None = None,
         audit: AuditSink | None = None,
         quota: QuotaGateway | None = None,
+        knowledge: KnowledgeStore | None = None,
     ) -> None:
         self.settings = settings or Settings()
         self.adapter = adapter
@@ -90,6 +96,15 @@ class Agent:
             self.quota = InMemoryQuotaGateway(budget=self.settings.quota_budget)
         else:
             self.quota = UnlimitedQuotaGateway()
+
+        if knowledge is not None:
+            self.knowledge = knowledge
+        else:
+            self.knowledge = build_knowledge(
+                enabled=self.settings.knowledge_enabled,
+                paths=self.settings.knowledge_paths,
+                adapter_docs=self.adapter.docs_paths(),
+            )
 
     async def chat(
         self,
@@ -135,33 +150,57 @@ class Agent:
                 session.add("assistant", reply, status="ok")
                 return AgentResponse(session_id=session.id, message=reply, status="ok")
 
+        system_prompt, knowledge_meta = self._system_prompt_with_knowledge(
+            message,
+            tenant_id=tenant_id,
+        )
         plan = await self.planner.plan(
             message=message,
             registry=self.registry,
             history=session.history(),
-            system_prompt=self.adapter.system_prompt(),
+            system_prompt=system_prompt,
         )
 
         if plan.type == "respond":
             session.add("assistant", plan.content, status="ok")
-            return AgentResponse(session_id=session.id, message=plan.content, status="ok")
+            return AgentResponse(
+                session_id=session.id,
+                message=plan.content,
+                status="ok",
+                metadata=knowledge_meta,
+            )
 
         if plan.type == "clarify":
             session.add("assistant", plan.content, status="ok")
-            return AgentResponse(session_id=session.id, message=plan.content, status="ok")
+            return AgentResponse(
+                session_id=session.id,
+                message=plan.content,
+                status="ok",
+                metadata=knowledge_meta,
+            )
 
         if plan.type != "tool" or not plan.tool_name:
             reply = "Could not determine an action."
             session.add("assistant", reply, status="error")
-            return AgentResponse(session_id=session.id, message=reply, status="error")
+            return AgentResponse(
+                session_id=session.id,
+                message=reply,
+                status="error",
+                metadata=knowledge_meta,
+            )
 
         tool = self.registry.get(plan.tool_name)
         if tool is None:
             reply = f"Tool not found: {plan.tool_name}"
             session.add("assistant", reply, status="error")
-            return AgentResponse(session_id=session.id, message=reply, status="error")
+            return AgentResponse(
+                session_id=session.id,
+                message=reply,
+                status="error",
+                metadata=knowledge_meta,
+            )
 
-        return await self._run_tool(
+        response = await self._run_tool(
             session,
             plan.tool_name,
             plan.tool_args or {},
@@ -169,6 +208,35 @@ class Agent:
             skip_confirmation=auto_confirm,
             dry_run=use_dry_run,
         )
+        if knowledge_meta:
+            response.metadata = {**knowledge_meta, **response.metadata}
+        return response
+
+    def _system_prompt_with_knowledge(
+        self,
+        message: str,
+        *,
+        tenant_id: str | None,
+    ) -> tuple[str, dict[str, Any]]:
+        base = self.adapter.system_prompt()
+        if self.knowledge is None:
+            return base, {}
+        hits = self.knowledge.retrieve(
+            message,
+            tenant_id=tenant_id,
+            limit=self.settings.knowledge_limit,
+        )
+        if not hits:
+            return base, {"knowledge": {"enabled": True, "hits": 0}}
+        block = format_knowledge_context(hits)
+        meta = {
+            "knowledge": {
+                "enabled": True,
+                "hits": len(hits),
+                "sources": [h.source for h in hits],
+            }
+        }
+        return f"{base}\n\n{block}", meta
 
     async def _run_tool(
         self,
