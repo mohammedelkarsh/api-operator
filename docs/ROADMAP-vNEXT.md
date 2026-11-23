@@ -268,14 +268,14 @@ User message
    - `docs/audit.md`
    - `docs/quotas.md`
    - `docs/dry-run.md`
-4. [x] نشر PyPI `api-operator==0.11.0` (Foundation؛ قفزة `1.0.0` لاحقًا عند الجاهزية).
-5. [x] Tag Git `v0.11.0` (و`v1.0.0` عند الـ major).
+4. [x] نشر PyPI `api-operator==1.0.0` (بعد Foundation `0.11.0`).
+5. [x] Tag Git `v1.0.0`.
 
 **Done للمرحلة 1 كاملة:**
 - [x] Policy + Dry-run + Audit + Quota hooks تعمل معًا في مسار chat واحد.
 - [x] الاختبارات الخضراء على CI.
 - [x] لا يوجد اعتماد إجباري على Laravel أو vector DB.
-- [x] الحزمة منشورة: `pip install api-operator==0.11.0` — https://pypi.org/project/api-operator/0.11.0/
+- [x] الحزمة منشورة: `pip install api-operator==1.0.0` — https://pypi.org/project/api-operator/1.0.0/
 
 ---
 
