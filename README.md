@@ -14,10 +14,10 @@ Works with Laravel, Go, or any REST API. First-class example: [laravel-tenant-ki
 ## Install
 
 ```bash
-pip install api-operator==1.1.0
+pip install api-operator==1.1.1
 # optional OpenAI planner / RAG (embeddings + pgvector)
-pip install "api-operator[llm]==1.1.0"
-pip install "api-operator[rag]==1.1.0"
+pip install "api-operator[llm]==1.1.1"
+pip install "api-operator[rag]==1.1.1"
 ```
 
 Development:

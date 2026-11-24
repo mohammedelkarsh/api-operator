@@ -51,9 +51,7 @@ class KeywordKnowledge:
     @classmethod
     def from_settings_paths(cls, raw: str | None) -> KeywordKnowledge | None:
         """Parse comma-separated paths; return None if empty."""
-        if not raw or not raw.strip():
-            return None
-        paths = [p.strip() for p in raw.split(",") if p.strip()]
+        paths = expand_knowledge_paths(raw)
         if not paths:
             return None
         return cls(paths)
@@ -82,6 +80,43 @@ class KeywordKnowledge:
             if len(hits) >= limit:
                 break
         return hits
+
+
+def expand_knowledge_paths(raw: str | None) -> list[str]:
+    """Expand comma-separated file/dir paths into concrete markdown/text files.
+
+    Directories include ``*.md`` and ``*.txt`` recursively (sorted).
+    Missing paths are skipped so demos do not crash on optional docs.
+    """
+    if not raw or not str(raw).strip():
+        return []
+
+    out: list[str] = []
+    seen: set[str] = set()
+    for part in str(raw).split(","):
+        candidate = part.strip()
+        if not candidate:
+            continue
+        path = Path(candidate)
+        files: list[Path]
+        if path.is_dir():
+            files = sorted(
+                [
+                    *path.rglob("*.md"),
+                    *path.rglob("*.txt"),
+                ]
+            )
+        elif path.is_file():
+            files = [path]
+        else:
+            continue
+        for file_path in files:
+            key = str(file_path.resolve()) if file_path.exists() else str(file_path)
+            if key in seen:
+                continue
+            seen.add(key)
+            out.append(str(file_path))
+    return out
 
 
 def format_knowledge_context(hits: list[KnowledgeHit]) -> str:
@@ -140,7 +175,7 @@ def build_knowledge(
 
     combined: list[str | Path] = []
     if paths:
-        combined.extend(p.strip() for p in paths.split(",") if p.strip())
+        combined.extend(expand_knowledge_paths(paths))
     if adapter_docs:
         combined.extend(adapter_docs)
     if not combined:

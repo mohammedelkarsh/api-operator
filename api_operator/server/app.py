@@ -44,7 +44,7 @@ def create_app(settings: Settings | None = None):
     session_store = SessionStore()
     app = FastAPI(
         title="API Operator",
-        version="1.1.0",
+        version="1.1.1",
         description="Safe API Agent — policy, dry-run, audit, optional knowledge/RAG",
     )
 

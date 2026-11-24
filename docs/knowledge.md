@@ -16,6 +16,8 @@ export API_OPERATOR_KNOWLEDGE_ENABLED=true
 
 ```bash
 export API_OPERATOR_KNOWLEDGE_PATHS="docs/api.md,README.md"
+# or a folder of curated notes (1.1.1+ expands *.md / *.txt recursively):
+# export API_OPERATOR_KNOWLEDGE_PATHS="integrations/api-operator/knowledge"
 export API_OPERATOR_KNOWLEDGE_BACKEND=keyword   # or embedding
 # export API_OPERATOR_OPENAI_API_KEY=...        # for OpenAI embeddings
 # export API_OPERATOR_KNOWLEDGE_PG_DSN=postgresql+psycopg://...
