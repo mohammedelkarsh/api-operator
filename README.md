@@ -36,6 +36,13 @@ api-operator tools --adapter mock
 api-operator chat --adapter mock --dry-run
 ```
 
+**Windows note:** if `api-operator` is not recognized after `pip install` (user Scripts not on PATH), use the module form:
+
+```powershell
+python -m api_operator.server.cli demo
+python -m api_operator.server.cli serve --host 127.0.0.1 --port 8100
+```
+
 Public API demo (no Laravel):
 
 ```bash

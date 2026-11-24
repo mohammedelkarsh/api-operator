@@ -1,7 +1,8 @@
 name: tenant_kit
 description: Laravel Tenant Kit central + tenant API adapter
-# Override via CLI --base-url or TENANT_KIT_BASE_URL when running the agent
+# Match APP_URL in your .env; override via --base-url when running api-operator
 base_url: http://laravel-tenant-kit.test
+
 auth:
   type: bearer
   header: Authorization
@@ -89,3 +90,15 @@ tools:
     body:
       email: "{email}"
       role: "{role}"
+
+  - name: get_kyc_status
+    description: Get KYC readiness and latest verification status for a workspace tenant
+    method: GET
+    path: /api/kyc/status
+    host: tenant
+    tenant_param: subdomain
+    requires_ability: kyc:read
+    parameters:
+      subdomain:
+        type: string
+        required: true
