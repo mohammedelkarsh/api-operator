@@ -1,5 +1,5 @@
-# Optional Safe API Agent policy for laravel-tenant-kit adapter.
-# Keep in sync with laravel-tenant-kit/integrations/api-operator/policy.yaml
+# Optional Safe API Agent policy (api-operator >= 0.11).
+# Loaded automatically when placed next to adapter.yaml, or via API_OPERATOR_POLICY_PATH.
 version: 1
 name: tenant_kit
 description: Conservative defaults for workspace/team tools
@@ -12,6 +12,7 @@ confirm_tools:
 max_calls:
   list_workspaces: 50
   get_usage: 30
+  get_kyc_status: 40
 
 rules:
   - id: block_viewer_writes
