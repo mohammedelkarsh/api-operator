@@ -6,12 +6,14 @@
 | الحقل | القيمة |
 |--------|--------|
 | المنتج | `api-operator` (ريبو مستقل — موجود) |
-| الإصدار الحالي | `0.10.0` (PyPI) |
-| الإصدار المستهدف للمرحلة 1 | `1.0.0` |
+| الإصدار الحالي | `1.1.1` ([PyPI](https://pypi.org/project/api-operator/)) |
+| المراحل 0–3 | ✅ شُحنت (`1.0.0` Safe API Agent → `1.1.0` Knowledge → `1.1.1` directory paths) |
+| التالي | `1.2+` Ecosystem (أدوات أعمق / مزوّدات vector إضافية) حسب الطلب |
 | اللغة | Python 3.11+ |
 | أول عميل تكامل | [laravel-tenant-kit](https://github.com/mohammedelkarsh/laravel-tenant-kit) |
 | تاريخ اعتماد الخطة | 2026-11-23 |
-| الحالة | مسودة معتمدة للنقاش → تنفيذ |
+| آخر مزامنة للمستند | 2026-11-24 |
+| الحالة | مرجع تنفيذي بعد الإطلاق — المراحل الأولى مكتملة |
 
 ---
 
@@ -46,34 +48,34 @@ api-operator (مستقل — المنتج AI)
         └── نفس الـ runtime → أي منتج SaaS لاحق
 ```
 
-- **tenant-kit:** وكيل أذكى + أأمن + مربوط بـ `agent_calls` والفوترة.
-- **kyc-ai:** لاحقًا أدوات قراءة/إعادة تشغيل تحقق ضمن صلاحيات.
+- **tenant-kit:** وكيل أذكى + أأمن + مربوط بـ `agent_calls` والفوترة (مدموج opt-in).
+- **kyc-ai:** أدوات قراءة الحالة وإعادة التشغيل ضمن abilities (`get_kyc_status` / `retry_kyc_verification`) — شُحنت.
 - **أي منتج جديد:** يعيد استخدام نفس الـ operator بدون إعادة اختراع.
 
 ---
 
-## 2) الوضع الحالي (Baseline — 0.10.0)
+## 2) الوضع الحالي (Baseline — 1.1.1)
 
-ما هو موجود اليوم ويجب البناء فوقه لا استبداله:
+ما شُحن ويُبنى فوقه (كان خط الأساس قبل التنفيذ `0.10.0`):
 
 | المكوّن | الملف/المسار | الحالة |
 |---------|--------------|--------|
-| Agent runtime | `api_operator/core/agent.py` | ✅ يعمل |
+| Agent runtime | `api_operator/core/agent.py` | ✅ |
 | Planner (mock + OpenAI اختياري) | `planner.py`, `planner_openai.py` | ✅ |
-| Guardrails أساسية | `guardrails.py` (abilities + confirm dangerous) | ✅ جزئي |
+| Guardrails أساسية | `guardrails.py` (abilities + confirm dangerous) | ✅ |
+| Policy engine | `policy` + `policy.yaml` | ✅ منذ 1.0 |
+| Dry-run | CLI `--dry-run` + HTTP | ✅ منذ 1.0 |
+| Audit log + redaction | `audit` / sinks | ✅ منذ 1.0 |
+| Quota / budget hooks | `QuotaGateway` | ✅ منذ 1.0 |
 | Tool executor | `executor.py` | ✅ |
 | YAML adapter | `adapters/yaml_adapter.py` | ✅ |
 | OpenAPI generator | `adapters/openapi_generator.py` | ✅ |
 | CLI + HTTP server | `server/cli.py`, `server/app.py` | ✅ |
-| Tenant-kit example | `examples/tenant-kit-adapter/` | ✅ |
-| Keyword RAG بسيط | `rag/indexer.py` (بدون embeddings) | ✅ تجريبي خفيف |
-| Policy engine متقدم | — | ❌ غير موجود |
-| Quotas / budgets | — | ❌ غير موجود |
-| Audit log إنتاجي | — | ❌ غير موجود |
-| Dry-run mode | — | ❌ غير موجود |
-| Vector RAG / pgvector | — | ❌ غير موجود |
+| Tenant-kit adapter + KYC tools | `examples/tenant-kit-adapter/` | ✅ |
+| Knowledge L0–L2 | keyword → embeddings → pgvector | ✅ منذ 1.1.0 |
+| Knowledge directory paths | مسارات مجلدات للمعرفة | ✅ منذ 1.1.1 |
 
-**الخلاصة:** الأساس قوي. الفجوة الحقيقية للسوق هي طبقة **الأمان التشغيلي + التكلفة + التدقيق** قبل أي RAG متقدم.
+**الخلاصة:** Safe API Agent + Knowledge شُحنا. الفجوة المتبقية للسوق هي تعميق المنظومة (`1.2+`) لا إعادة بناء الأساس.
 
 ---
 
@@ -109,7 +111,7 @@ api-operator (مستقل — المنتج AI)
 | **1.1.1** | Knowledge DX | مسارات مجلدات لملفات المعرفة | ✅ |
 | **1.2+** | Ecosystem | أدوات KYC/billing أعمق، مزوّدات vector إضافية | حسب الطلب |
 
-> ملاحظة: أرقام 0.11 قد تُدمج مباشرة في 1.0.0 إذا كان حجم التغيير يستحق قفزة major واضحة. القرار النهائي عند بدء التنفيذ حسب كسر التوافق.
+> ملاحظة تاريخية: نُشر Foundation كـ `0.11.x` ثم قفزة واضحة إلى `1.0.0` Safe API Agent، ثم Knowledge في `1.1.x`.
 
 ---
 
@@ -471,7 +473,7 @@ rag = ["pgvector...", "sqlalchemy..."]  # يُحدد بدقة عند التنف�
 
 ## 15) ملخص تنفيذي بجملة واحدة
 
-> نرفع `api-operator` من مشغّل أدوات مفيد إلى **Safe API Agent مستقل (1.0)**، ثم ندمجه opt-in مع `laravel-tenant-kit`، ثم نضيف RAG كمعرفة مساعدة — بهذا نستفيد من الرواج الحالي وندخل AI/RAG بتسلسل يخدم السوق لا يشتته.
+> رُفع `api-operator` إلى **Safe API Agent (1.0)** ودُمج opt-in مع `laravel-tenant-kit`، ثم أُضيف Knowledge/RAG في **1.1.x** — التالي اختياري حسب الطلب (`1.2+` منظومة أعمق)، لا إعادة تأسيس.
 
 ---
 
