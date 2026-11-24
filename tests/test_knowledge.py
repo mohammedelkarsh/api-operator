@@ -6,7 +6,12 @@ import pytest
 
 from api_operator.core.config import Settings
 from api_operator.factory import build_agent
-from api_operator.rag.knowledge import KeywordKnowledge, build_knowledge, format_knowledge_context
+from api_operator.rag.knowledge import (
+    KeywordKnowledge,
+    build_knowledge,
+    expand_knowledge_paths,
+    format_knowledge_context,
+)
 from api_operator.adapters.mock import reset_mock_store
 
 
@@ -19,6 +24,24 @@ def clean_store():
 
 def test_knowledge_disabled_by_default():
     assert build_knowledge(enabled=False, paths="docs/a.md") is None
+
+
+def test_expand_knowledge_paths_includes_directory(tmp_path: Path):
+    (tmp_path / "a.md").write_text("# Alpha doc\n\n" + ("alpha " * 20), encoding="utf-8")
+    nested = tmp_path / "nested"
+    nested.mkdir()
+    (nested / "b.md").write_text("# Beta doc\n\n" + ("beta " * 20), encoding="utf-8")
+    (tmp_path / "skip.bin").write_bytes(b"\x00\x01")
+
+    paths = expand_knowledge_paths(str(tmp_path))
+    assert any(p.endswith("a.md") for p in paths)
+    assert any(p.replace("\\", "/").endswith("nested/b.md") for p in paths)
+    assert not any(p.endswith("skip.bin") for p in paths)
+
+    store = build_knowledge(enabled=True, paths=str(tmp_path), backend="keyword")
+    assert store is not None
+    hits = store.retrieve("alpha", limit=3)
+    assert hits
 
 
 def test_tenant_isolation(tmp_path: Path):

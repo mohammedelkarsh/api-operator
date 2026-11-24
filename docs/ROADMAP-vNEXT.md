@@ -106,6 +106,7 @@ api-operator (مستقل — المنتج AI)
 | **1.0.0** | Safe API Agent | منتج إنتاجي معلن: policy + quota + audit + docs | `api-operator` |
 | **1.0.x + tenant-kit** | First-class integration | دمج opt-in مع الكيت والعدادات | `api-operator` + `laravel-tenant-kit` |
 | **1.1.0** | Knowledge (RAG) | RAG اختياري: keyword→embeddings→pgvector | `api-operator` (+ extra) |
+| **1.1.1** | Knowledge DX | مسارات مجلدات لملفات المعرفة | ✅ |
 | **1.2+** | Ecosystem | أدوات KYC/billing أعمق، مزوّدات vector إضافية | حسب الطلب |
 
 > ملاحظة: أرقام 0.11 قد تُدمج مباشرة في 1.0.0 إذا كان حجم التغيير يستحق قفزة major واضحة. القرار النهائي عند بدء التنفيذ حسب كسر التوافق.

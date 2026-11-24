@@ -2,6 +2,12 @@
 
 All notable changes to this project are documented in this file.
 
+## [1.1.1] - 2026-11-24
+
+### Added
+
+- `API_OPERATOR_KNOWLEDGE_PATHS` may include **directories** (loads `*.md` / `*.txt` recursively)
+
 ## [1.1.0] - 2026-11-23
 
 ### Added
