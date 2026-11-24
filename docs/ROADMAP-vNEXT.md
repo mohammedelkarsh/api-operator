@@ -376,9 +376,9 @@ rag = ["pgvector...", "sqlalchemy..."]  # يُحدد بدقة عند التنف�
 
 ### kyc-ai / external-shufti
 - بعد استقرار المرحلة 2:
-  - أدوات قراءة حالة التحقق
-  - إعادة تشغيل job ضمن ability خاصة
-  - لا توضع أسرار KYC داخل الـ operator
+  - [x] أدوات قراءة حالة التحقق (`get_kyc_status` + `GET /api/kyc/status`)
+  - [x] إعادة تشغيل job ضمن ability خاصة (`retry_kyc_verification` + `kyc:retry`؛ national_id فقط)
+  - [x] لا توضع أسرار KYC داخل الـ operator
 
 ### أي SaaS لاحق
 - نفس الخطوات: `adapter.yaml` + `policy.yaml` + hooks للفوترة.
